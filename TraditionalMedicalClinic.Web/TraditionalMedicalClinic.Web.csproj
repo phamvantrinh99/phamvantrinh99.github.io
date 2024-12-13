@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="EPiServer" />
+    <Using Include="EPiServer.Core" />
+    <Using Include="EPiServer.DataAbstraction" />
+    <Using Include="EPiServer.DataAnnotations" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="EPiServer.CMS" Version="12.29.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Translations\**\*" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\TraditionalMedicalClinic.Business\TraditionalMedicalClinic.Business.csproj" />
+    <ProjectReference Include="..\TraditionalMedicalClinic.Cms\TraditionalMedicalClinic.Cms.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="ViewModels\Blocks\" />
+    <Folder Include="Views\Blocks\" />
+  </ItemGroup>
+</Project>
