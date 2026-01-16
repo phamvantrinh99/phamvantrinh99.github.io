@@ -609,20 +609,40 @@ const Gallery3D = (() => {
                     }
                 }
                 
-                // Smooth hover effect
+                // Enhanced hover effect
                 if (group === hoveredMesh) {
-                    const targetScale = 1.15;
-                    group.scale.x += (targetScale - group.scale.x) * 0.1;
-                    group.scale.y += (targetScale - group.scale.y) * 0.1;
-                    group.scale.z += (targetScale - group.scale.z) * 0.1;
+                    // Larger scale for more obvious effect
+                    const targetScale = 1.3;
+                    group.scale.x += (targetScale - group.scale.x) * 0.2;
+                    group.scale.y += (targetScale - group.scale.y) * 0.2;
+                    group.scale.z += (targetScale - group.scale.z) * 0.2;
                     
-                    // Tilt effect
-                    group.rotation.y += (0.1 - group.rotation.y) * 0.1;
+                    // Stronger tilt effect
+                    group.rotation.y += (0.15 - group.rotation.y) * 0.15;
+                    
+                    // Add glow to main mesh
+                    const mainMesh = group.userData.mainMesh;
+                    if (mainMesh && mainMesh.material) {
+                        mainMesh.material.emissiveIntensity = Math.min(
+                            mainMesh.material.emissiveIntensity + 0.03, 
+                            0.3
+                        );
+                    }
                 } else {
-                    group.scale.x += (1.0 - group.scale.x) * 0.1;
-                    group.scale.y += (1.0 - group.scale.y) * 0.1;
-                    group.scale.z += (1.0 - group.scale.z) * 0.1;
-                    group.rotation.y += (0 - group.rotation.y) * 0.1;
+                    // Reset to normal
+                    group.scale.x += (1.0 - group.scale.x) * 0.15;
+                    group.scale.y += (1.0 - group.scale.y) * 0.15;
+                    group.scale.z += (1.0 - group.scale.z) * 0.15;
+                    group.rotation.y += (0 - group.rotation.y) * 0.15;
+                    
+                    // Reset glow
+                    const mainMesh = group.userData.mainMesh;
+                    if (mainMesh && mainMesh.material) {
+                        mainMesh.material.emissiveIntensity = Math.max(
+                            mainMesh.material.emissiveIntensity - 0.02, 
+                            0.05
+                        );
+                    }
                 }
             }
         });

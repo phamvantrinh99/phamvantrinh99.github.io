@@ -110,13 +110,15 @@
         const controlPanel = document.getElementById('control-panel');
         const uiControls = document.getElementById('ui-controls');
         
-        // Start expanded
-        uiControls.classList.add('expanded');
+        // Start collapsed (default)
+        // uiControls does NOT have 'expanded' class initially
         
         toggleBtn.addEventListener('click', () => {
+            const isExpanded = uiControls.classList.toggle('expanded');
             controlPanel.classList.toggle('hidden');
-            toggleBtn.classList.toggle('collapsed');
-            uiControls.classList.toggle('expanded');
+            
+            // Update button text
+            toggleBtn.textContent = isExpanded ? '▲' : '▼';
         });
         
         // Layout buttons
