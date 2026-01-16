@@ -78,7 +78,8 @@ const Gallery3D = (() => {
         controls.screenSpacePanning = false;
         controls.minDistance = 20;
         controls.maxDistance = 200;
-        controls.maxPolarAngle = Math.PI;
+        // Remove polar angle limit for full 360° rotation
+        // controls.maxPolarAngle = Math.PI; // Removed to allow full vertical rotation
         controls.autoRotate = CONFIG.ANIMATION.autoRotate;
         controls.autoRotateSpeed = CONFIG.ANIMATION.autoRotateSpeed;
         
