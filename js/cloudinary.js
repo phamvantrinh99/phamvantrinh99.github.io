@@ -79,9 +79,9 @@ const CloudinaryManager = (() => {
                         name: fileName,
                         mimeType: `image/${format}`,
                         // Thumbnail with auto optimization
-                        thumbnailUrl: `${baseUrl}/w_800,q_auto,f_auto/${publicId}`,
+                        thumbnailUrl: `${baseUrl}/w_${CONFIG.LOADING.thumbnailSize},q_auto:best,f_auto/${publicId}`,
                         // Full size with optimization
-                        fullUrl: `${baseUrl}/w_2000,q_auto,f_auto/${publicId}`,
+                        fullUrl: `${baseUrl}/w_2000,q_auto:best,f_auto/${publicId}`,
                         width: resource.width,
                         height: resource.height,
                         createdTime: resource.created_at

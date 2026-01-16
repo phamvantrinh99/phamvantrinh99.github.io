@@ -22,7 +22,7 @@ const CONFIG = {
     GALLERY: {
         imageWidth: 10,
         imageHeight: 10,
-        spacing: 15,
+        spacing: 18,
         
         // Grid layout
         gridColumns: 5,
@@ -45,7 +45,7 @@ const CONFIG = {
     // Image Loading Configuration
     LOADING: {
         maxConcurrent: 5, // Load 5 images at a time (Cloudinary CDN is fast!)
-        thumbnailSize: 800 // Cloudinary thumbnail width
+        thumbnailSize: 1200 // Cloudinary thumbnail width (higher quality)
     }
 };
 

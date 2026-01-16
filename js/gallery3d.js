@@ -15,9 +15,21 @@ const Gallery3D = (() => {
     
     // Animation
     let animationId;
+    let clock = new THREE.Clock();
     
     // Raycaster for mouse interaction
     let raycaster, mouse;
+    
+    // Effects
+    let particles, particleSystem;
+    let hoveredMesh = null;
+    
+    // Control parameters
+    let controlParams = {
+        particleCount: 1000,
+        particleSpeed: 1.0,
+        glowIntensity: 1.5
+    };
     
     /**
      * Initialize Three.js scene
@@ -50,6 +62,8 @@ const Gallery3D = (() => {
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
         
         // Add orbit controls
@@ -66,6 +80,9 @@ const Gallery3D = (() => {
         // Add lights
         addLights();
         
+        // Add particle system
+        addParticles();
+        
         // Setup raycaster for mouse interaction
         raycaster = new THREE.Raycaster();
         mouse = new THREE.Vector2();
@@ -79,26 +96,97 @@ const Gallery3D = (() => {
     }
     
     /**
+     * Add enhanced particle system
+     */
+    function addParticles() {
+        const particleCount = controlParams.particleCount;
+        const particlesGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+        
+        for (let i = 0; i < particleCount; i++) {
+            // Random positions in a sphere
+            const radius = 100;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            
+            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = radius * Math.cos(phi);
+            
+            // Random colors (blue/purple/white)
+            const colorChoice = Math.random();
+            if (colorChoice < 0.33) {
+                colors[i * 3] = 0.3 + Math.random() * 0.3;     // R
+                colors[i * 3 + 1] = 0.5 + Math.random() * 0.5; // G
+                colors[i * 3 + 2] = 1.0;                        // B
+            } else if (colorChoice < 0.66) {
+                colors[i * 3] = 0.8 + Math.random() * 0.2;     // R
+                colors[i * 3 + 1] = 0.3 + Math.random() * 0.3; // G
+                colors[i * 3 + 2] = 1.0;                        // B
+            } else {
+                colors[i * 3] = 1.0;                            // R
+                colors[i * 3 + 1] = 1.0;                        // G
+                colors[i * 3 + 2] = 1.0;                        // B
+            }
+            
+            // Random sizes - to nhỏ khác nhau
+            sizes[i] = Math.random() * 4 + 1; // Size từ 1 đến 5
+        }
+        
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        
+        // Create circular particle texture
+        const canvas = document.createElement('canvas');
+        canvas.width = 32;
+        canvas.height = 32;
+        const ctx = canvas.getContext('2d');
+        
+        // Draw circular gradient
+        const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 32, 32);
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 2,
+            map: texture,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending,
+            sizeAttenuation: true,
+            depthWrite: false
+        });
+        
+        particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particleSystem);
+    }
+    
+    /**
      * Add lights to scene
      */
     function addLights() {
-        // Ambient light
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        // Ambient light (reduced for better image visibility)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
         
-        // Directional light
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        // Directional light with shadows (reduced)
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
         directionalLight.position.set(10, 10, 10);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
         scene.add(directionalLight);
-        
-        // Point lights for atmosphere
-        const pointLight1 = new THREE.PointLight(0x667eea, 1, 100);
-        pointLight1.position.set(20, 20, 20);
-        scene.add(pointLight1);
-        
-        const pointLight2 = new THREE.PointLight(0x764ba2, 1, 100);
-        pointLight2.position.set(-20, -20, 20);
-        scene.add(pointLight2);
+
     }
     
     /**
@@ -132,31 +220,107 @@ const Gallery3D = (() => {
     }
     
     /**
-     * Create placeholder mesh
+     * Create 3D frame mesh with depth
      */
     function createPlaceholderMesh(index) {
+        // Create group for image + frame
+        const group = new THREE.Group();
+        
+        // Main image plane
         const geometry = new THREE.PlaneGeometry(
             CONFIG.GALLERY.imageWidth,
             CONFIG.GALLERY.imageHeight
         );
         
-        // Placeholder material (gradient)
+        // Enhanced material (will be replaced by texture)
         const material = new THREE.MeshStandardMaterial({
-            color: 0x333333,
+            color: 0xffffff,
             side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.8
+            transparent: false,
+            metalness: 0,
+            roughness: 1
         });
         
         const mesh = new THREE.Mesh(geometry, material);
-        mesh.userData = {
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        group.add(mesh);
+        
+        // Add frame depth
+        const frameDepth = 0.3;
+        const frameThickness = 0.2;
+        
+        // Back panel
+        const backGeometry = new THREE.PlaneGeometry(
+            CONFIG.GALLERY.imageWidth + frameThickness,
+            CONFIG.GALLERY.imageHeight + frameThickness
+        );
+        const backMaterial = new THREE.MeshStandardMaterial({
+            color: 0x222222,
+            metalness: 0.5,
+            roughness: 0.5
+        });
+        const backMesh = new THREE.Mesh(backGeometry, backMaterial);
+        backMesh.position.z = -frameDepth;
+        backMesh.castShadow = true;
+        group.add(backMesh);
+        
+        // Frame edges
+        const edgeMaterial = new THREE.MeshStandardMaterial({
+            color: 0x1a1a1a,
+            metalness: 0.6,
+            roughness: 0.3
+        });
+        
+        // Top edge
+        const topEdge = new THREE.BoxGeometry(
+            CONFIG.GALLERY.imageWidth + frameThickness,
+            frameThickness,
+            frameDepth
+        );
+        const topMesh = new THREE.Mesh(topEdge, edgeMaterial);
+        topMesh.position.y = CONFIG.GALLERY.imageHeight / 2 + frameThickness / 2;
+        topMesh.position.z = -frameDepth / 2;
+        topMesh.castShadow = true;
+        group.add(topMesh);
+        
+        // Bottom edge
+        const bottomMesh = new THREE.Mesh(topEdge, edgeMaterial);
+        bottomMesh.position.y = -CONFIG.GALLERY.imageHeight / 2 - frameThickness / 2;
+        bottomMesh.position.z = -frameDepth / 2;
+        bottomMesh.castShadow = true;
+        group.add(bottomMesh);
+        
+        // Left edge
+        const sideEdge = new THREE.BoxGeometry(
+            frameThickness,
+            CONFIG.GALLERY.imageHeight,
+            frameDepth
+        );
+        const leftMesh = new THREE.Mesh(sideEdge, edgeMaterial);
+        leftMesh.position.x = -CONFIG.GALLERY.imageWidth / 2 - frameThickness / 2;
+        leftMesh.position.z = -frameDepth / 2;
+        leftMesh.castShadow = true;
+        group.add(leftMesh);
+        
+        // Right edge
+        const rightMesh = new THREE.Mesh(sideEdge, edgeMaterial);
+        rightMesh.position.x = CONFIG.GALLERY.imageWidth / 2 + frameThickness / 2;
+        rightMesh.position.z = -frameDepth / 2;
+        rightMesh.castShadow = true;
+        group.add(rightMesh);
+        
+        group.userData = {
             isImageMesh: true,
             imageIndex: index,
             imageData: images[index],
-            loaded: false
+            loaded: false,
+            mainMesh: mesh,
+            originalScale: { x: 1, y: 1, z: 1 },
+            floatOffset: Math.random() * Math.PI * 2
         };
         
-        return mesh;
+        return group;
     }
     
     /**
@@ -195,18 +359,34 @@ const Gallery3D = (() => {
                     const texture = new THREE.Texture(img);
                     texture.needsUpdate = true;
                     
-                    // Apply to mesh
-                    const mesh = imageMeshes[index];
-                    mesh.material.map = texture;
-                    mesh.material.color.setHex(0xffffff);
-                    mesh.material.needsUpdate = true;
-                    mesh.userData.loaded = true;
+                    // Apply to mesh (group structure)
+                    const group = imageMeshes[index];
+                    if (!group || !group.userData.mainMesh) {
+                        console.error(`❌ Group or mainMesh not found for index ${index}`);
+                        resolve();
+                        return;
+                    }
+                    
+                    const mainMesh = group.userData.mainMesh;
+                    
+                    // Create new material with texture
+                    mainMesh.material = new THREE.MeshStandardMaterial({
+                        map: texture,
+                        side: THREE.DoubleSide,
+                        metalness: 0,
+                        roughness: 1,
+                        emissive: 0x111111,
+                        emissiveIntensity: 0.05,
+                        emissiveMap: texture
+                    });
+                    
+                    group.userData.loaded = true;
                     
                     // Update progress
                     const progress = ((index + 1) / imageMeshes.length) * 100;
                     updateLoadingProgress(progress);
                     
-                    console.log(`✓ Loaded ${index + 1}/${imageMeshes.length}`);
+                    console.log(`✓ Loaded ${index + 1}/${imageMeshes.length}`, texture);
                     resolve();
                 };
                 
@@ -225,10 +405,19 @@ const Gallery3D = (() => {
     }
     
     /**
-     * Position meshes according to layout
+     * Position meshes according to layout with smooth transitions
      */
     function positionMeshes(layout) {
         currentLayout = layout;
+        
+        // Smooth camera transition
+        const targetCameraPos = layout === 'grid' ? 
+            { x: 0, y: 0, z: 50 } : 
+            layout === 'circle' ? 
+            { x: 0, y: 20, z: 60 } : 
+            { x: 0, y: 30, z: 70 };
+        
+        animateCameraTo(targetCameraPos, 1000);
         
         switch (layout) {
             case 'grid':
@@ -244,6 +433,38 @@ const Gallery3D = (() => {
     }
     
     /**
+     * Animate camera to target position
+     */
+    function animateCameraTo(target, duration) {
+        const start = {
+            x: camera.position.x,
+            y: camera.position.y,
+            z: camera.position.z
+        };
+        const startTime = Date.now();
+        
+        function updateCamera() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing function (easeInOutCubic)
+            const eased = progress < 0.5 ?
+                4 * progress * progress * progress :
+                1 - Math.pow(-2 * progress + 2, 3) / 2;
+            
+            camera.position.x = start.x + (target.x - start.x) * eased;
+            camera.position.y = start.y + (target.y - start.y) * eased;
+            camera.position.z = start.z + (target.z - start.z) * eased;
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateCamera);
+            }
+        }
+        
+        updateCamera();
+    }
+    
+    /**
      * Grid layout
      */
     function positionGrid() {
@@ -256,9 +477,17 @@ const Gallery3D = (() => {
             
             const x = (col - cols / 2) * spacing;
             const y = -(row * spacing);
-            const z = 0;
+            const z = i * 0.01; // Small z offset to prevent z-fighting
             
             animatePosition(mesh, x, y, z);
+            
+            // Reset rotation for grid
+            mesh.rotation.x = 0;
+            mesh.rotation.y = 0;
+            mesh.rotation.z = 0;
+            
+            // Disable floating animation for grid
+            mesh.userData.disableFloat = true;
         });
     }
     
@@ -277,8 +506,13 @@ const Gallery3D = (() => {
             
             animatePosition(mesh, x, y, z);
             
-            // Rotate to face center
-            mesh.lookAt(0, 0, 0);
+            // Rotate to face center but keep upright
+            mesh.rotation.y = -angle;
+            mesh.rotation.x = 0;
+            mesh.rotation.z = 0;
+            
+            // Disable floating animation for circle (keep all at same height)
+            mesh.userData.disableFloat = true;
         });
     }
     
@@ -299,6 +533,14 @@ const Gallery3D = (() => {
             const z = Math.sin(angle) * radius;
             
             animatePosition(mesh, x, y, z);
+            
+            // Rotate to face center but keep upright
+            mesh.rotation.y = -angle;
+            mesh.rotation.x = 0;
+            mesh.rotation.z = 0;
+            
+            // Enable floating animation for spiral
+            mesh.userData.disableFloat = false;
         });
     }
     
@@ -330,10 +572,60 @@ const Gallery3D = (() => {
     }
     
     /**
-     * Animation loop
+     * Animation loop with enhanced effects
      */
     function animate() {
         animationId = requestAnimationFrame(animate);
+        
+        const elapsedTime = clock.getElapsedTime();
+        
+        // Animate particles
+        if (particleSystem) {
+            const speed = controlParams.particleSpeed;
+            particleSystem.rotation.y = elapsedTime * 0.05 * speed;
+            particleSystem.rotation.x = Math.sin(elapsedTime * 0.1 * speed) * 0.1;
+            
+            // Pulse particles
+            const positions = particleSystem.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length; i += 3) {
+                const pulse = Math.sin(elapsedTime * 2 * speed + i) * 0.5;
+                positions[i + 1] += pulse * 0.01 * speed;
+            }
+            particleSystem.geometry.attributes.position.needsUpdate = true;
+        }
+        
+        // Animate image groups
+        imageMeshes.forEach((group, index) => {
+            if (group.userData.loaded) {
+                // Floating animation (only if not disabled)
+                if (!group.userData.disableFloat) {
+                    const floatOffset = group.userData.floatOffset;
+                    const baseY = group.userData.baseY || group.position.y;
+                    group.position.y = baseY + Math.sin(elapsedTime * 0.5 + floatOffset) * 0.3;
+                    
+                    // Store base position
+                    if (!group.userData.baseY) {
+                        group.userData.baseY = group.position.y;
+                    }
+                }
+                
+                // Smooth hover effect
+                if (group === hoveredMesh) {
+                    const targetScale = 1.15;
+                    group.scale.x += (targetScale - group.scale.x) * 0.1;
+                    group.scale.y += (targetScale - group.scale.y) * 0.1;
+                    group.scale.z += (targetScale - group.scale.z) * 0.1;
+                    
+                    // Tilt effect
+                    group.rotation.y += (0.1 - group.rotation.y) * 0.1;
+                } else {
+                    group.scale.x += (1.0 - group.scale.x) * 0.1;
+                    group.scale.y += (1.0 - group.scale.y) * 0.1;
+                    group.scale.z += (1.0 - group.scale.z) * 0.1;
+                    group.rotation.y += (0 - group.rotation.y) * 0.1;
+                }
+            }
+        });
         
         // Update controls
         controls.update();
@@ -374,22 +666,27 @@ const Gallery3D = (() => {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         
-        // Raycast to find hovered mesh
+        // Raycast to find hovered group (need to check children)
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(imageMeshes);
+        const intersects = raycaster.intersectObjects(imageMeshes, true);
         
-        // Reset all meshes
-        imageMeshes.forEach(mesh => {
-            mesh.scale.set(1, 1, 1);
-        });
-        
-        // Highlight hovered mesh
+        // Update hovered mesh
         if (intersects.length > 0) {
-            const mesh = intersects[0].object;
-            mesh.scale.set(1.1, 1.1, 1.1);
-            document.body.style.cursor = 'pointer';
+            // Get the parent group
+            let newHovered = intersects[0].object;
+            while (newHovered.parent && !newHovered.userData.isImageMesh) {
+                newHovered = newHovered.parent;
+            }
+            
+            if (newHovered !== hoveredMesh && newHovered.userData.isImageMesh) {
+                hoveredMesh = newHovered;
+                document.body.style.cursor = 'pointer';
+            }
         } else {
-            document.body.style.cursor = 'default';
+            if (hoveredMesh) {
+                hoveredMesh = null;
+                document.body.style.cursor = 'default';
+            }
         }
     }
     
@@ -401,17 +698,24 @@ const Gallery3D = (() => {
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(imageMeshes);
+        const intersects = raycaster.intersectObjects(imageMeshes, true);
         
         if (intersects.length > 0) {
-            const mesh = intersects[0].object;
-            const imageData = mesh.userData.imageData;
-            const imageIndex = mesh.userData.imageIndex;
+            // Get the parent group
+            let clickedObject = intersects[0].object;
+            while (clickedObject.parent && !clickedObject.userData.isImageMesh) {
+                clickedObject = clickedObject.parent;
+            }
             
-            // Trigger event for modal
-            window.dispatchEvent(new CustomEvent('imageClicked', {
-                detail: { imageData, imageIndex }
-            }));
+            if (clickedObject.userData.isImageMesh) {
+                const imageData = clickedObject.userData.imageData;
+                const imageIndex = clickedObject.userData.imageIndex;
+                
+                // Trigger event for modal
+                window.dispatchEvent(new CustomEvent('imageClicked', {
+                    detail: { imageData, imageIndex }
+                }));
+            }
         }
     }
     
@@ -438,6 +742,40 @@ const Gallery3D = (() => {
         return images;
     }
     
+    /**
+     * Update control parameters
+     */
+    function updateControls(params) {
+        Object.assign(controlParams, params);
+        
+        // Apply particle count change
+        if (params.particleCount !== undefined && particleSystem) {
+            scene.remove(particleSystem);
+            addParticles();
+        }
+        
+        // Apply glow intensity to all lights
+        if (params.glowIntensity !== undefined) {
+            scene.children.forEach(child => {
+                if (child.isLight) {
+                    child.intensity = params.glowIntensity;
+                }
+            });
+        }
+        
+        // Toggle particle visibility
+        if (params.particleVisible !== undefined && particleSystem) {
+            particleSystem.visible = params.particleVisible;
+        }
+    }
+    
+    /**
+     * Get control parameters
+     */
+    function getControlParams() {
+        return controlParams;
+    }
+    
     // Public API
     return {
         init,
@@ -445,7 +783,9 @@ const Gallery3D = (() => {
         start,
         stop,
         changeLayout,
-        getImages
+        getImages,
+        updateControls,
+        getControlParams
     };
 })();
 

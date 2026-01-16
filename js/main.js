@@ -108,10 +108,15 @@
         // Toggle panel button
         const toggleBtn = document.getElementById('toggle-panel');
         const controlPanel = document.getElementById('control-panel');
+        const uiControls = document.getElementById('ui-controls');
+        
+        // Start expanded
+        uiControls.classList.add('expanded');
         
         toggleBtn.addEventListener('click', () => {
             controlPanel.classList.toggle('hidden');
             toggleBtn.classList.toggle('collapsed');
+            uiControls.classList.toggle('expanded');
         });
         
         // Layout buttons
@@ -120,6 +125,9 @@
                 changeLayout(layout);
             });
         });
+        
+        // Control sliders and checkboxes
+        setupControlListeners();
         
         // Modal controls
         const closeBtn = document.querySelector('.close');
@@ -161,6 +169,29 @@
         window.addEventListener('loadingProgress', (e) => {
             const { progress } = e.detail;
             updateProgress(progress);
+        });
+    }
+    
+    /**
+     * Setup control listeners for sliders and checkboxes
+     */
+    function setupControlListeners() {
+        // Particle Count
+        const particleCountSlider = document.getElementById('particle-count');
+        const particleCountValue = document.getElementById('particle-count-value');
+        particleCountSlider.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            particleCountValue.textContent = value;
+            Gallery3D.updateControls({ particleCount: value });
+        });
+        
+        // Particle Speed
+        const particleSpeedSlider = document.getElementById('particle-speed');
+        const particleSpeedValue = document.getElementById('particle-speed-value');
+        particleSpeedSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            particleSpeedValue.textContent = value.toFixed(1) + 'x';
+            Gallery3D.updateControls({ particleSpeed: value });
         });
     }
     
