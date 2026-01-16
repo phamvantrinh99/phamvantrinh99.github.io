@@ -31,11 +31,15 @@
             <!-- Layout Controls -->
             <div class="control-section">
                 <label>📐 Layout</label>
-                <div class="controls">
-                    <button id="layout-grid" class="btn active">Grid</button>
-                    <button id="layout-circle" class="btn">Circle</button>
-                    <button id="layout-spiral" class="btn">Spiral</button>
-                </div>
+                <select id="layout-select" class="dropdown">
+                    <option value="grid">Grid - Lưới</option>
+                    <option value="circle">Circle - Vòng Tròn</option>
+                    <option value="spiral">Spiral - Xoắn Ốc</option>
+                    <option value="wave">Wave - Sóng</option>
+                    <option value="helix">Helix - DNA</option>
+                    <option value="sphere">Sphere - Hình Cầu</option>
+                    <option value="wall">Wall - Tường</option>
+                </select>
             </div>
 
             <!-- Particle Controls -->
@@ -48,6 +52,29 @@
                 <div class="slider-group">
                     <span>Speed: <span id="particle-speed-value">1.0x</span></span>
                     <input type="range" id="particle-speed" min="0" max="3" value="1" step="0.1">
+                </div>
+            </div>
+
+            <!-- Rotation Controls -->
+            <div class="control-section">
+                <label>🔄 Rotation</label>
+                <div class="toggle-group">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="auto-rotate-images">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Rotate per image</span>
+                </div>
+                <div class="toggle-group">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="auto-rotate-gallery">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Rotate all</span>
+                </div>
+                <div class="slider-group">
+                    <span>Speed: <span id="gallery-rotation-speed-value">0.5x</span></span>
+                    <input type="range" id="gallery-rotation-speed" min="0" max="2" value="0.5" step="0.1">
                 </div>
             </div>
 

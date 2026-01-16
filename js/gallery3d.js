@@ -12,6 +12,7 @@ const Gallery3D = (() => {
     let imageMeshes = [];
     let images = [];
     let currentLayout = 'grid';
+    let galleryGroup; // Group to hold all images for gallery rotation
     
     // Animation
     let animationId;
@@ -28,7 +29,11 @@ const Gallery3D = (() => {
     let controlParams = {
         particleCount: 1000,
         particleSpeed: 1.0,
-        glowIntensity: 1.5
+        glowIntensity: 1.5,
+        autoRotateImages: false,
+        rotationSpeed: 1.0,
+        autoRotateGallery: false,
+        galleryRotationSpeed: 0.5
     };
     
     /**
@@ -196,18 +201,20 @@ const Gallery3D = (() => {
         images = imageList;
         imageMeshes = [];
         
-        // Clear existing meshes
-        scene.children.forEach(child => {
-            if (child.userData.isImageMesh) {
-                scene.remove(child);
-            }
-        });
+        // Clear existing gallery group
+        if (galleryGroup) {
+            scene.remove(galleryGroup);
+        }
+        
+        // Create new gallery group for rotation
+        galleryGroup = new THREE.Group();
+        scene.add(galleryGroup);
         
         // Create placeholder meshes first
         for (let i = 0; i < images.length; i++) {
             const mesh = createPlaceholderMesh(i);
             imageMeshes.push(mesh);
-            scene.add(mesh);
+            galleryGroup.add(mesh); // Add to group instead of scene
         }
         
         // Position meshes according to current layout
@@ -429,6 +436,18 @@ const Gallery3D = (() => {
             case 'spiral':
                 positionSpiral();
                 break;
+            case 'wave':
+                positionWave();
+                break;
+            case 'helix':
+                positionHelix();
+                break;
+            case 'sphere':
+                positionSphere();
+                break;
+            case 'wall':
+                positionWall();
+                break;
         }
     }
     
@@ -545,6 +564,124 @@ const Gallery3D = (() => {
     }
     
     /**
+     * Wave layout - Images arranged in a sine wave pattern
+     */
+    function positionWave() {
+        const cols = 8;
+        const spacing = 15;
+        const waveHeight = 10;
+        const waveFrequency = 0.5;
+        
+        imageMeshes.forEach((mesh, i) => {
+            const row = Math.floor(i / cols);
+            const col = i % cols;
+            
+            const x = (col - cols / 2) * spacing;
+            const z = row * spacing;
+            const y = Math.sin((col + row) * waveFrequency) * waveHeight;
+            
+            animatePosition(mesh, x, y, z);
+            
+            // Keep upright
+            mesh.rotation.x = 0;
+            mesh.rotation.y = 0;
+            mesh.rotation.z = 0;
+            
+            // Enable floating for wave effect
+            mesh.userData.disableFloat = false;
+        });
+    }
+    
+    /**
+     * Helix layout - DNA double helix structure
+     */
+    function positionHelix() {
+        const radius = 20;
+        const height = 8;
+        const rotations = 4;
+        
+        imageMeshes.forEach((mesh, i) => {
+            const t = i / imageMeshes.length;
+            const angle = t * Math.PI * 2 * rotations;
+            
+            // Create double helix by alternating sides
+            const side = i % 2 === 0 ? 1 : -1;
+            const x = Math.cos(angle) * radius * side;
+            const y = (i - imageMeshes.length / 2) * height;
+            const z = Math.sin(angle) * radius * side;
+            
+            animatePosition(mesh, x, y, z);
+            
+            // Rotate to face outward
+            mesh.rotation.y = -angle + (side === 1 ? 0 : Math.PI);
+            mesh.rotation.x = 0;
+            mesh.rotation.z = 0;
+            
+            // Enable floating
+            mesh.userData.disableFloat = false;
+        });
+    }
+    
+    /**
+     * Sphere layout - Images arranged on a sphere surface
+     */
+    function positionSphere() {
+        const radius = 40;
+        const count = imageMeshes.length;
+        
+        imageMeshes.forEach((mesh, i) => {
+            // Fibonacci sphere distribution for even spacing
+            const phi = Math.acos(1 - 2 * (i + 0.5) / count);
+            const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+            
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.sin(phi) * Math.sin(theta);
+            const z = radius * Math.cos(phi);
+            
+            animatePosition(mesh, x, y, z);
+            
+            // Rotate to face outward from center
+            mesh.lookAt(0, 0, 0);
+            mesh.rotation.y += Math.PI;
+            
+            // Disable floating for sphere
+            mesh.userData.disableFloat = true;
+        });
+    }
+    
+    /**
+     * Wall layout - Images on a curved wall
+     */
+    function positionWall() {
+        const cols = 6;
+        const rows = Math.ceil(imageMeshes.length / cols);
+        const spacing = 15;
+        const curveRadius = 50;
+        
+        imageMeshes.forEach((mesh, i) => {
+            const row = Math.floor(i / cols);
+            const col = i % cols;
+            
+            // Calculate angle for curved wall
+            const angle = ((col - cols / 2) / cols) * Math.PI * 0.8;
+            
+            const x = Math.sin(angle) * curveRadius;
+            const y = (row - rows / 2) * spacing;
+            const z = Math.cos(angle) * curveRadius - curveRadius;
+            
+            animatePosition(mesh, x, y, z);
+            
+            // Rotate to face center
+            mesh.rotation.y = -angle;
+            mesh.rotation.x = 0;
+            mesh.rotation.z = 0;
+            
+            // Disable floating for wall
+            mesh.userData.disableFloat = true;
+        });
+    }
+    
+    /**
      * Animate mesh position
      */
     function animatePosition(mesh, x, y, z) {
@@ -594,6 +731,11 @@ const Gallery3D = (() => {
             particleSystem.geometry.attributes.position.needsUpdate = true;
         }
         
+        // Rotate entire gallery (all images together)
+        if (controlParams.autoRotateGallery && galleryGroup) {
+            galleryGroup.rotation.y = elapsedTime * 0.2 * controlParams.galleryRotationSpeed;
+        }
+        
         // Animate image groups
         imageMeshes.forEach((group, index) => {
             if (group.userData.loaded) {
@@ -607,6 +749,20 @@ const Gallery3D = (() => {
                     if (!group.userData.baseY) {
                         group.userData.baseY = group.position.y;
                     }
+                }
+                
+                // Auto-rotate images (spin on Y axis)
+                if (controlParams.autoRotateImages) {
+                    const rotationOffset = group.userData.floatOffset || 0;
+                    const baseRotationY = group.userData.baseRotationY || 0;
+                    
+                    // Store base rotation on first frame
+                    if (group.userData.baseRotationY === undefined) {
+                        group.userData.baseRotationY = group.rotation.y;
+                    }
+                    
+                    // Smooth rotation
+                    group.rotation.y = baseRotationY + (elapsedTime * 0.3 * controlParams.rotationSpeed);
                 }
                 
                 // Enhanced hover effect
@@ -683,6 +839,16 @@ const Gallery3D = (() => {
      * Handle mouse move (for hover effects)
      */
     function onMouseMove(event) {
+        // Check if mouse is over UI controls - prevent hover effects
+        const uiControls = document.getElementById('ui-controls');
+        if (uiControls && uiControls.contains(event.target)) {
+            if (hoveredMesh) {
+                hoveredMesh = null;
+                document.body.style.cursor = 'default';
+            }
+            return; // Don't process hover if it's on UI
+        }
+        
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         
@@ -714,6 +880,12 @@ const Gallery3D = (() => {
      * Handle mouse click
      */
     function onMouseClick(event) {
+        // Check if click is on UI controls - prevent click-through
+        const uiControls = document.getElementById('ui-controls');
+        if (uiControls && uiControls.contains(event.target)) {
+            return; // Don't process click if it's on UI
+        }
+        
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         

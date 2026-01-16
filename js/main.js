@@ -94,11 +94,8 @@
         
         imageCountEl = document.getElementById('image-count');
         
-        layoutButtons = {
-            grid: document.getElementById('layout-grid'),
-            circle: document.getElementById('layout-circle'),
-            spiral: document.getElementById('layout-spiral')
-        };
+        // Layout dropdown (not buttons anymore)
+        layoutButtons = {}; // Keep for compatibility but not used
     }
     
     /**
@@ -121,11 +118,10 @@
             toggleBtn.textContent = isExpanded ? '▲' : '▼';
         });
         
-        // Layout buttons
-        Object.keys(layoutButtons).forEach(layout => {
-            layoutButtons[layout].addEventListener('click', () => {
-                changeLayout(layout);
-            });
+        // Layout dropdown
+        const layoutSelect = document.getElementById('layout-select');
+        layoutSelect.addEventListener('change', (e) => {
+            changeLayout(e.target.value);
         });
         
         // Control sliders and checkboxes
@@ -195,18 +191,37 @@
             particleSpeedValue.textContent = value.toFixed(1) + 'x';
             Gallery3D.updateControls({ particleSpeed: value });
         });
+        
+        // Auto Rotate Images Toggle
+        const autoRotateToggle = document.getElementById('auto-rotate-images');
+        autoRotateToggle.addEventListener('change', (e) => {
+            Gallery3D.updateControls({ autoRotateImages: e.target.checked });
+        });
+        
+        // Auto Rotate Gallery Toggle
+        const autoRotateGalleryToggle = document.getElementById('auto-rotate-gallery');
+        autoRotateGalleryToggle.addEventListener('change', (e) => {
+            Gallery3D.updateControls({ autoRotateGallery: e.target.checked });
+        });
+        
+        // Gallery Rotation Speed (only one speed slider for both)
+        const galleryRotationSpeedSlider = document.getElementById('gallery-rotation-speed');
+        const galleryRotationSpeedValue = document.getElementById('gallery-rotation-speed-value');
+        galleryRotationSpeedSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            galleryRotationSpeedValue.textContent = value.toFixed(1) + 'x';
+            // Apply speed to both rotations
+            Gallery3D.updateControls({ 
+                rotationSpeed: value * 2, // Image rotation faster
+                galleryRotationSpeed: value 
+            });
+        });
     }
     
     /**
      * Change gallery layout
      */
     function changeLayout(layout) {
-        // Update button states
-        Object.keys(layoutButtons).forEach(key => {
-            layoutButtons[key].classList.remove('active');
-        });
-        layoutButtons[layout].classList.add('active');
-        
         // Change layout in 3D gallery
         Gallery3D.changeLayout(layout);
         
