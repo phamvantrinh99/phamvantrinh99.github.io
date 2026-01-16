@@ -161,43 +161,13 @@ const Gallery3D = (() => {
     
     /**
      * Load textures for all images
+     * Cloudinary URLs work directly - NO CORS!
      */
     async function loadTextures() {
-        const loader = new THREE.TextureLoader();
-        // Enable CORS for texture loading
-        loader.crossOrigin = 'anonymous';
-        
         const loadPromises = [];
         
         for (let i = 0; i < imageMeshes.length; i++) {
-            const promise = new Promise((resolve) => {
-                const imageUrl = images[i].thumbnailUrl;
-                
-                loader.load(
-                    imageUrl,
-                    (texture) => {
-                        // Success
-                        const mesh = imageMeshes[i];
-                        mesh.material.map = texture;
-                        mesh.material.color.setHex(0xffffff);
-                        mesh.material.needsUpdate = true;
-                        mesh.userData.loaded = true;
-                        
-                        // Update progress
-                        const progress = ((i + 1) / imageMeshes.length) * 100;
-                        updateLoadingProgress(progress);
-                        
-                        resolve();
-                    },
-                    undefined,
-                    (error) => {
-                        // Error
-                        console.warn(`Không thể tải ảnh ${i}:`, error);
-                        resolve(); // Still resolve to continue
-                    }
-                );
-            });
-            
+            const promise = loadImageTexture(images[i].thumbnailUrl, i);
             loadPromises.push(promise);
             
             // Load in batches to avoid overwhelming the browser
@@ -208,6 +178,50 @@ const Gallery3D = (() => {
         
         // Wait for remaining images
         await Promise.all(loadPromises);
+    }
+    
+    /**
+     * Load single image texture from Cloudinary URL (no CORS!)
+     */
+    async function loadImageTexture(imageUrl, index) {
+        return new Promise((resolve) => {
+            try {
+                // Load image directly from Cloudinary CDN - NO CORS!
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    // Create texture from image
+                    const texture = new THREE.Texture(img);
+                    texture.needsUpdate = true;
+                    
+                    // Apply to mesh
+                    const mesh = imageMeshes[index];
+                    mesh.material.map = texture;
+                    mesh.material.color.setHex(0xffffff);
+                    mesh.material.needsUpdate = true;
+                    mesh.userData.loaded = true;
+                    
+                    // Update progress
+                    const progress = ((index + 1) / imageMeshes.length) * 100;
+                    updateLoadingProgress(progress);
+                    
+                    console.log(`✓ Loaded ${index + 1}/${imageMeshes.length}`);
+                    resolve();
+                };
+                
+                img.onerror = (error) => {
+                    console.warn(`❌ Failed to load image ${index}:`, error);
+                    resolve(); // Still resolve to continue
+                };
+                
+                img.src = imageUrl;
+                
+            } catch (error) {
+                console.warn(`❌ Error loading image ${index}:`, error);
+                resolve(); // Still resolve to continue
+            }
+        });
     }
     
     /**

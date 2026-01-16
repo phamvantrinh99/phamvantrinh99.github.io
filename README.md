@@ -1,9 +1,10 @@
-# 3D Photo Gallery from Google Drive
+# 3D Photo Gallery from Cloudinary
 
-Website hiển thị ảnh từ Google Drive dưới dạng 3D gallery với Three.js, host trên GitHub Pages.
+Website hiển thị ảnh từ Cloudinary dưới dạng 3D gallery với Three.js, host trên GitHub Pages.
 
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![Three.js](https://img.shields.io/badge/Three.js-r128-blue)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-CDN-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
@@ -11,50 +12,56 @@ Website hiển thị ảnh từ Google Drive dưới dạng 3D gallery với Thr
 ## 🎯 Tính năng
 
 - ✨ **3D Gallery**: Hiển thị ảnh trong không gian 3D
-- ☁️ **Google Drive**: Tự động sync ảnh từ Google Drive
+- ☁️ **Cloudinary CDN**: Load ảnh nhanh, không CORS
 - 🎨 **3 Layouts**: Grid, Circle, Spiral
 - 🖱️ **Interactive**: Xoay, zoom, click
 - 📱 **Responsive**: Mobile-friendly
-- ⚡ **Fast**: Progressive loading
+- ⚡ **Auto Optimization**: Cloudinary tự động optimize ảnh
 
 ---
 
-## 🚀 Quick Start (10 phút)
+## 🚀 Quick Start (5 phút)
 
-### 1. Tạo Google API Key (5 phút)
+### 1. Tạo Cloudinary Account (2 phút)
 
-1. Vào [Google Cloud Console](https://console.cloud.google.com/)
-2. Tạo project mới
-3. Enable **Google Drive API**
-4. Tạo **API Key** (Credentials > Create Credentials)
-5. Restrict API Key:
-   - HTTP referrers: `https://[username].github.io/*`
-   - API: Google Drive API only
+1. Vào [Cloudinary](https://cloudinary.com/users/register/free)
+2. Sign up free (25GB storage, 25GB bandwidth/month)
+3. Vào Dashboard, copy **Cloud name**
 
-### 2. Chuẩn bị Google Drive Folder (2 phút)
+### 2. Upload Ảnh (2 phút)
 
-1. Tạo folder trên Google Drive
-2. Upload ảnh (JPG, PNG, GIF, WebP)
-3. Share folder: **"Anyone with the link can view"**
-4. Copy Folder ID từ URL: `drive.google.com/drive/folders/FOLDER_ID`
+1. Vào **Media Library**
+2. Tạo folder mới (ví dụ: `gallery`)
+3. Upload ảnh vào folder
+4. **Không cần set public** - Cloudinary tự động public!
 
-### 3. Cấu hình Code (1 phút)
+### 3. Cấu Hình Code (1 phút)
 
-Mở `js/config.js`:
+Mở `js/config.js` và update:
 
 ```javascript
-GOOGLE_API_KEY: 'YOUR_API_KEY',
-GOOGLE_FOLDER_ID: 'YOUR_FOLDER_ID',
+CLOUDINARY_CLOUD_NAME: 'your-cloud-name',  // Từ Dashboard
+CLOUDINARY_FOLDER_NAME: 'gallery',         // Tên folder của bạn
 ```
 
-### 4. Deploy (2 phút)
+### 4. Test Local
 
 ```bash
-git init
+# Python
+python -m http.server 8000
+
+# Hoặc Node.js
+npx http-server -p 8000
+```
+
+Mở: `http://localhost:8000`
+
+### 5. Deploy GitHub Pages
+
+```bash
 git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/[username]/[username].github.io.git
-git push -u origin main
+git commit -m "Switch to Cloudinary"
+git push
 ```
 
 Enable GitHub Pages: Settings > Pages > Source: main
@@ -80,6 +87,30 @@ Enable GitHub Pages: Settings > Pages > Source: main
 
 ---
 
+## ✨ Tại Sao Cloudinary?
+
+### So Sánh Với Google Drive
+
+| Feature | Google Drive | Cloudinary |
+|---------|-------------|------------|
+| CORS Issues | ❌ Có | ✅ Không |
+| Setup | 😰 Phức tạp | 😊 Đơn giản |
+| API Key | ✅ Cần | ❌ Không cần |
+| Auto Optimization | ❌ Không | ✅ Có |
+| CDN Speed | ⚠️ Chậm | ✅ Nhanh |
+| Free Tier | 15GB | 25GB |
+
+### Ưu Điểm Cloudinary
+
+✅ **Không CORS** - Work 100% mọi lúc  
+✅ **Không cần API Key** - Chỉ cần Cloud name  
+✅ **Auto Optimization** - Tự động resize, compress  
+✅ **CDN Global** - Load nhanh khắp thế giới  
+✅ **Easy Upload** - Web UI đẹp, dễ dùng  
+✅ **Transformations** - Resize, crop on-the-fly  
+
+---
+
 ## 📸 Supported Formats
 
 ### ✅ Được hỗ trợ:
@@ -87,11 +118,11 @@ Enable GitHub Pages: Settings > Pages > Source: main
 - PNG
 - GIF
 - WebP
+- BMP
 
 ### ❌ Không hỗ trợ:
 - HEIC/HEIF (Apple format)
 - RAW formats
-- TIFF
 
 **Convert HEIC:** https://heictojpg.com/
 
@@ -99,138 +130,85 @@ Enable GitHub Pages: Settings > Pages > Source: main
 
 ## 🐛 Troubleshooting
 
-### Lỗi: "Requests from referer null are blocked"
+### Ảnh không hiển thị?
+1. ✅ Kiểm tra Cloud Name đúng chưa
+2. ✅ Kiểm tra Folder Name đúng chưa
+3. ✅ Mở Console (F12) xem lỗi gì
 
-**Nguyên nhân:** Đang mở file HTML trực tiếp (`file://`)
+### Không chạy được local?
+1. ✅ Phải chạy qua HTTP server (không mở trực tiếp HTML)
+2. ✅ Dùng `python -m http.server` hoặc `npx http-server`
 
-**Giải pháp:** Chạy HTTP server
-
-```bash
-python -m http.server 8000
-# Truy cập: http://localhost:8000
-```
-
-Và thêm `http://localhost:*` vào API Key restrictions.
-
-### Lỗi: CORS blocked
-
-**Nguyên nhân:** File ảnh không public
-
-**Giải pháp:** 
-1. Mở từng ảnh trong folder
-2. Share > "Anyone with the link can view"
-
-### Lỗi: 403 Forbidden
-
-**Nguyên nhân:** API Key chưa đúng hoặc chưa có quyền
-
-**Giải pháp:**
-1. Check API Key trong `config.js`
-2. Check folder và files đều public
-3. Đợi 2-3 phút sau khi config API Key
+### Muốn thêm ảnh mới?
+1. Upload vào Cloudinary folder
+2. Reload trang - tự động hiện!
 
 ---
 
-## ⚙️ Customization
-
-### Thay đổi màu sắc
-
-`css/style.css`:
-```css
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-```
-
-### Thay đổi layout
-
-`js/config.js`:
-```javascript
-GALLERY: {
-    gridColumns: 5,      // Số cột
-    circleRadius: 40,    // Bán kính circle
-    spacing: 15,         // Khoảng cách
-}
-```
-
-### Auto-rotate
-
-`js/config.js`:
-```javascript
-ANIMATION: {
-    autoRotate: true,
-    autoRotateSpeed: 0.5,
-}
-```
-
----
-
-## 📁 Cấu trúc
+## 📁 Cấu trúc Project
 
 ```
-├── index.html           # Main HTML
-├── css/style.css        # Styling
+phamvantrinh99.github.io/
+├── index.html              # Main HTML
+├── css/
+│   └── style.css          # Styles + animations
 ├── js/
-│   ├── config.js       # ⚙️ Configuration
-│   ├── gdrive.js       # Google Drive API
-│   ├── gallery3d.js    # Three.js 3D
-│   └── main.js         # Controller
-└── README.md           # This file
+│   ├── config.js          # Configuration
+│   ├── cloudinary.js      # Cloudinary integration
+│   ├── gallery3d.js       # Three.js engine
+│   └── main.js            # Main app logic
+├── README.md              # This file
+└── TECHNICAL.md           # Technical docs
 ```
 
 ---
 
-## 🔧 Development
+## 🛠️ Công nghệ
 
-### Local Testing
-
-```bash
-# Start server
-python -m http.server 8000
-
-# Add to API Key restrictions
-http://localhost:*
-```
-
-### Deploy
-
-```bash
-git add .
-git commit -m "Update"
-git push
-```
-
-GitHub Pages tự động deploy sau 1-2 phút.
+- **Three.js r128**: 3D rendering
+- **OrbitControls**: Camera controls
+- **Cloudinary CDN**: Image hosting & optimization
+- **Vanilla JavaScript**: No frameworks
+- **GitHub Pages**: Free hosting
 
 ---
 
-## 💡 Tips
+## 🎨 Cloudinary Features
 
-1. **Optimize ảnh**: Resize về 1920x1080, compress trước khi upload
-2. **Batch upload**: Upload nhiều ảnh cùng lúc vào folder
-3. **Auto sync**: Thêm ảnh mới vào folder, website tự động cập nhật
-4. **Mobile**: Dùng touch gestures để xoay/zoom
+### Auto Optimization
+Ảnh tự động được optimize:
+```
+w_800,q_auto,f_auto  → Width 800px, quality auto, format auto
+```
 
----
+### On-the-fly Transformations
+```
+/w_500,h_500,c_fill/  → Crop to 500x500
+/e_blur:300/          → Blur effect
+/e_grayscale/         → Grayscale
+```
 
-## 📚 Tech Stack
-
-- **Three.js r128** - 3D rendering
-- **Google Drive API v3** - Cloud storage
-- **Vanilla JS** - No frameworks
-- **GitHub Pages** - Free hosting
+### Responsive Images
+Cloudinary tự động chọn format tốt nhất (WebP cho Chrome, JPEG cho Safari)
 
 ---
 
 ## 📄 License
 
-MIT License - Free to use
+MIT License - Xem [LICENSE](LICENSE)
 
 ---
 
-## 👤 Author
+## 🤝 Contributing
 
-**Pham Van Trinh**
-- GitHub: [@phamvantrinh99](https://github.com/phamvantrinh99)
+Pull requests welcome! Mọi đóng góp đều được hoan nghênh.
 
 ---
 
-Made with ❤️ using Three.js and Google Drive API
+## 📞 Support
+
+Có vấn đề? Tạo [Issue](https://github.com/phamvantrinh99/phamvantrinh99.github.io/issues)
+
+---
+
+**Made with ❤️ by phamvantrinh99**

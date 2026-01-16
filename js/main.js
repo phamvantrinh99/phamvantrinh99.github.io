@@ -29,8 +29,8 @@
         // Setup event listeners
         setupEventListeners();
         
-        // Initialize Google Drive Manager
-        GDriveManager.init(CONFIG.GOOGLE_API_KEY, CONFIG.GOOGLE_FOLDER_ID);
+        // Initialize Cloudinary Manager
+        CloudinaryManager.init(CONFIG.CLOUDINARY_CLOUD_NAME, CONFIG.CLOUDINARY_TAG);
         
         // Initialize Three.js Gallery
         const container = document.getElementById('container');
@@ -38,17 +38,17 @@
         
         try {
             // Show loading screen
-            showLoading('Đang kết nối Google Drive...');
+            showLoading('Đang kết nối Cloudinary...');
             
-            // Test connection first
-            const connected = await GDriveManager.testConnection();
+            // Test connection
+            const connected = await CloudinaryManager.testConnection();
             if (!connected) {
-                throw new Error('Không thể kết nối Google Drive. Kiểm tra lại API Key và Folder ID.');
+                throw new Error('Không thể kết nối Cloudinary. Kiểm tra lại Cloud Name và Folder Name.');
             }
             
-            // Fetch images
+            // Fetch images from Cloudinary (NO CORS!)
             showLoading('Đang tải danh sách ảnh...');
-            currentImages = await GDriveManager.fetchImages();
+            currentImages = await CloudinaryManager.fetchImages();
             
             // Check if any images were loaded
             if (currentImages.length === 0) {

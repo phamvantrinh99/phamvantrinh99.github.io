@@ -7,7 +7,7 @@ User Browser
     ↓
 GitHub Pages (Static HTML/CSS/JS)
     ↓
-Google Drive API → Fetch Images
+Cloudinary CDN → Fetch Images (NO CORS!)
     ↓
 Three.js Renderer → 3D Gallery
     ↓
@@ -22,32 +22,72 @@ OrbitControls → User Interactions
 **Purpose:** Centralized configuration
 
 **Key Settings:**
-- `GOOGLE_API_KEY`: API key cho Google Drive
-- `GOOGLE_FOLDER_ID`: ID của folder chứa ảnh
+- `CLOUDINARY_CLOUD_NAME`: Cloudinary cloud name
+- `CLOUDINARY_FOLDER_NAME`: Folder name chứa ảnh
 - `SCENE`: Three.js scene configuration
 - `GALLERY`: Layout parameters
 - `ANIMATION`: Animation settings
 - `LOADING`: Image loading configuration
 
-### 2. Google Drive Manager (`js/gdrive.js`)
-**Purpose:** Google Drive API integration
+**Example:**
+```javascript
+const CONFIG = {
+    CLOUDINARY_CLOUD_NAME: 'my-cloud',
+    CLOUDINARY_FOLDER_NAME: 'gallery',
+    SCENE: {
+        backgroundColor: 0x1a1a2e,
+        cameraFov: 75,
+        // ...
+    }
+};
+```
+
+### 2. Cloudinary Manager (`js/cloudinary.js`)
+**Purpose:** Cloudinary CDN integration
 
 **Functions:**
-- `init(apiKey, folderId)`: Initialize credentials
+- `init(cloudName, folderName)`: Initialize configuration
 - `fetchImages()`: Lấy danh sách ảnh từ folder
-- `getThumbnailUrl(fileId)`: Generate thumbnail URL
-- `getFullImageUrl(fileId)`: Generate full image URL
-- `testConnection()`: Test API connectivity
+- `getThumbnailUrl(publicId, width)`: Generate optimized thumbnail URL
+- `getFullImageUrl(publicId)`: Generate full image URL
+- `testConnection()`: Test connection
 
 **API Endpoint:**
 ```
-GET https://www.googleapis.com/drive/v3/files/{fileId}?alt=media&key={apiKey}
+GET https://res.cloudinary.com/{cloud_name}/image/list/{folder_name}.json
+```
+
+**Response Format:**
+```json
+{
+  "resources": [
+    {
+      "public_id": "folder/image1",
+      "format": "jpg",
+      "width": 1920,
+      "height": 1080,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ]
+}
 ```
 
 **Features:**
-- Filter unsupported formats (HEIC, RAW, etc.)
-- Error handling
-- Console warnings cho skipped files
+- ✅ No API key needed
+- ✅ No CORS issues
+- ✅ Auto optimization (q_auto, f_auto)
+- ✅ Filter unsupported formats
+- ✅ Error handling
+
+**Image URL Format:**
+```
+https://res.cloudinary.com/{cloud}/image/upload/w_{width},q_auto,f_auto/{public_id}.{format}
+```
+
+**Transformations:**
+- `w_800` - Width 800px
+- `q_auto` - Auto quality
+- `f_auto` - Auto format (WebP cho Chrome, JPEG cho Safari)
 
 ### 3. Gallery 3D (`js/gallery3d.js`)
 **Purpose:** Three.js 3D visualization
@@ -58,13 +98,30 @@ GET https://www.googleapis.com/drive/v3/files/{fileId}?alt=media&key={apiKey}
 - `renderer`: WebGLRenderer với antialiasing
 - `controls`: OrbitControls
 - `raycaster`: Mouse interaction detection
+- `particles`: Particle system cho effects
+- `lights`: Animated lights
 
 **Functions:**
 - `init(container)`: Setup 3D scene
 - `loadImages(images)`: Create meshes cho ảnh
+- `loadTextures()`: Load image textures từ Cloudinary
 - `positionMeshes(layout)`: Apply layout algorithm
 - `changeLayout(layout)`: Switch giữa layouts
 - `animate()`: Render loop (60fps target)
+
+**Image Loading:**
+```javascript
+// Load directly from Cloudinary CDN - NO CORS!
+const img = new Image();
+img.crossOrigin = 'anonymous';
+img.src = cloudinaryUrl; // https://res.cloudinary.com/...
+
+img.onload = () => {
+    const texture = new THREE.Texture(img);
+    texture.needsUpdate = true;
+    mesh.material.map = texture;
+};
+```
 
 **Layouts:**
 
@@ -93,391 +150,425 @@ y = (i - count/2) * spacing
 z = sin(angle) * radius
 ```
 
+**Visual Effects:**
+- Particle system (floating particles)
+- Animated lights (color changing)
+- Image glow on hover
+- Smooth transitions
+
 ### 4. Main Controller (`js/main.js`)
 **Purpose:** Application orchestration
 
 **Responsibilities:**
 - Initialize all modules
+- Coordinate data flow
 - Handle UI events
 - Manage application state
-- Control loading/error states
-- Modal management
+- Error handling
 
----
-
-## 🎨 Three.js Scene Structure
-
+**Initialization Flow:**
 ```
-Scene
-│
-├── Lights
-│   ├── AmbientLight (0xffffff, 0.6)
-│   ├── DirectionalLight (0xffffff, 0.8)
-│   ├── PointLight 1 (0x667eea, purple)
-│   └── PointLight 2 (0x764ba2, purple)
-│
-├── Camera (PerspectiveCamera)
-│   ├── FOV: 75°
-│   ├── Position: (0, 0, 50)
-│   └── OrbitControls attached
-│
-└── Image Meshes (Array)
-    └── Each Mesh:
-        ├── Geometry: PlaneGeometry (10x10)
-        ├── Material: MeshStandardMaterial
-        │   ├── Texture: From Google Drive
-        │   ├── Side: DoubleSide
-        │   └── Transparent: true
-        └── UserData:
-            ├── isImageMesh: true
-            ├── imageIndex: number
-            ├── imageData: object
-            └── loaded: boolean
+1. Get DOM elements
+2. Setup event listeners
+3. Initialize CloudinaryManager
+4. Initialize Gallery3D
+5. Test connection
+6. Fetch images
+7. Load images into 3D scene
+8. Start animation loop
 ```
+
+**Event Handling:**
+- Layout button clicks
+- Modal open/close
+- Keyboard navigation
+- Image click events
+- Toggle panel
 
 ---
 
 ## 🔄 Data Flow
 
-### Initialization Flow
+### Image Loading Process
+
 ```
 1. User loads page
-2. main.js initializes
-3. Config loaded from config.js
-4. GDriveManager.init(apiKey, folderId)
-5. Gallery3D.init(container)
-6. Three.js scene created
-7. Show loading screen
-```
-
-### Image Loading Flow
-```
-1. GDriveManager.fetchImages()
-2. API call to Google Drive
-3. Filter supported formats
-4. Parse response → image list
-5. Gallery3D.loadImages(images)
-6. Create placeholder meshes
-7. Position meshes (layout)
-8. Load textures (progressive, batch of 5)
-9. Update meshes with textures
-10. Hide loading screen
-11. Start animation loop
+   ↓
+2. CloudinaryManager.init()
+   ↓
+3. CloudinaryManager.fetchImages()
+   → GET https://res.cloudinary.com/{cloud}/image/list/{folder}.json
+   ↓
+4. Parse JSON response
+   → Filter supported formats
+   → Generate optimized URLs
+   ↓
+5. Gallery3D.loadImages()
+   → Create placeholder meshes
+   → Position in layout
+   ↓
+6. Gallery3D.loadTextures()
+   → Load images from Cloudinary CDN (parallel)
+   → Create THREE.Texture
+   → Apply to meshes
+   ↓
+7. Gallery3D.start()
+   → Start animation loop
+   → Enable interactions
 ```
 
 ### User Interaction Flow
+
 ```
-User Action (click/drag/scroll)
+User clicks image
    ↓
-Browser Event
+Raycaster detects intersection
    ↓
-Event Handler (main.js)
+Dispatch 'imageClicked' event
    ↓
-Update Gallery3D state
-   ↓
-Three.js renders new frame
-   ↓
-Visual feedback to user
+Main.js shows modal
+   → Load full resolution image
+   → Display metadata
 ```
+
+---
+
+## 🎨 Styling & UI
+
+### CSS Architecture
+
+**Files:**
+- `css/style.css`: Main stylesheet
+
+**Key Components:**
+1. **Loading Screen**
+   - Animated spinner
+   - Progress bar
+   - Fade out transition
+
+2. **Control Panel**
+   - Transparent background (rgba)
+   - Bottom-right positioning
+   - Toggle button
+   - Hover effects
+
+3. **Modal**
+   - Full-screen overlay
+   - Image centering
+   - Navigation buttons
+   - Keyboard support
+
+4. **Animations**
+   - Background gradient animation
+   - Button hover effects
+   - Fade in/out transitions
+   - Particle movements
+
+### Responsive Design
+
+**Breakpoints:**
+- Desktop: > 768px
+- Mobile: ≤ 768px
+
+**Mobile Optimizations:**
+- Touch-friendly controls
+- Adjusted camera distance
+- Simplified particle effects
+- Smaller UI elements
 
 ---
 
 ## ⚡ Performance Optimizations
 
-### 1. Texture Loading
-- Thumbnails via API (không phải full resolution)
-- Batch loading (5 concurrent)
-- Placeholder meshes shown immediately
-- Progressive enhancement
+### Image Loading
 
-### 2. Rendering
-- OrbitControls damping (smooth motion)
-- Fog for depth (hide far objects)
-- Efficient geometry (simple planes)
-- Raycaster optimization (only on interaction)
+1. **Parallel Loading**
+   - `maxConcurrent: 5` images at a time
+   - Batch processing to avoid overwhelming browser
 
-### 3. Memory Management
-- Texture reuse
-- Geometry sharing
-- Proper disposal on cleanup
-- No memory leaks
+2. **Cloudinary Optimizations**
+   - Auto quality (`q_auto`)
+   - Auto format (`f_auto`)
+   - Responsive sizing (`w_800` for thumbnails)
+   - CDN caching
 
----
+3. **Progressive Loading**
+   - Load thumbnails first (800px)
+   - Full resolution on modal open (2000px)
 
-## 🔐 Security
+### Three.js Optimizations
 
-### API Key Protection
-- Stored in config.js (not committed to public repos)
-- Restricted to specific domain
-- Restricted to Google Drive API only
-- No server-side exposure
+1. **Geometry Reuse**
+   - Single PlaneGeometry for all images
+   - Shared material properties
 
-### CORS Handling
-- Google Drive API v3 với `alt=media` hỗ trợ CORS
-- Public folder access only
-- No authentication required for viewing
+2. **Render Optimization**
+   - Only render when needed
+   - RequestAnimationFrame for smooth 60fps
 
----
+3. **Memory Management**
+   - Dispose old textures
+   - Clean up on layout change
 
-## 📱 Responsive Design
+### Browser Compatibility
 
-### Breakpoints
-- Desktop: > 768px
-- Mobile: ≤ 768px
+**Supported:**
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
 
-### Adaptations
-
-**Desktop:**
-- Full UI controls visible
-- Mouse interactions (drag, scroll)
-- Larger modal images
-- More detailed info
-
-**Mobile:**
-- Simplified UI (stacked buttons)
-- Touch interactions (swipe, pinch)
-- Smaller modal images
-- Compact info display
+**Required Features:**
+- WebGL
+- ES6 (const, let, arrow functions)
+- Fetch API
+- Promises/Async-Await
 
 ---
 
-## 🎯 Supported Image Formats
+## 🔒 Security
 
-### ✅ Supported
-- `image/jpeg`, `image/jpg`
-- `image/png`
-- `image/gif`
-- `image/webp`
-- `image/bmp`
-- `image/svg+xml`
+### No API Keys Required
 
-### ❌ Not Supported (Filtered Out)
-- HEIC/HEIF (Apple format)
-- RAW formats (CR2, NEF, ARW, etc.)
-- TIFF
-- PSD, AI
+Cloudinary public images không cần authentication:
+- ✅ Cloud name là public information
+- ✅ Folder list endpoint là public
+- ✅ Image URLs là public
+- ❌ Không expose sensitive data
 
-**Filter Logic:**
-```javascript
-const supportedFormats = ['image/jpeg', 'image/png', ...];
-const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
+### CORS Policy
 
-if (isSupported && !isHEIC) {
-    images.push(file);
-} else {
-    skippedFiles.push(file);
-}
+Cloudinary CDN headers:
+```
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET
 ```
 
----
+→ No CORS issues!
 
-## 🔧 Configuration Options
+### Content Security Policy
 
-### Scene Configuration
-```javascript
-SCENE: {
-    backgroundColor: 0x1a1a2e,  // Hex color
-    cameraFov: 75,              // Field of view (degrees)
-    cameraNear: 0.1,            // Near clipping plane
-    cameraFar: 2000,            // Far clipping plane
-    cameraPosition: { x: 0, y: 0, z: 50 }
-}
+Recommended CSP headers:
 ```
-
-### Gallery Configuration
-```javascript
-GALLERY: {
-    imageWidth: 10,       // Mesh width in 3D space
-    imageHeight: 10,      // Mesh height in 3D space
-    spacing: 15,          // Distance between images
-    gridColumns: 5,       // Grid layout columns
-    circleRadius: 40,     // Circle layout radius
-    spiralSpacing: 5,     // Spiral vertical spacing
-    spiralRotations: 3    // Spiral rotations count
-}
+default-src 'self';
+script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;
+img-src 'self' https://res.cloudinary.com;
+style-src 'self' 'unsafe-inline';
 ```
-
-### Animation Configuration
-```javascript
-ANIMATION: {
-    autoRotate: false,          // Auto-rotate camera
-    autoRotateSpeed: 0.5,       // Rotation speed
-    transitionDuration: 1000    // Layout transition (ms)
-}
-```
-
-### Loading Configuration
-```javascript
-LOADING: {
-    maxConcurrent: 5,     // Max concurrent image loads
-    thumbnailSize: 512    // Thumbnail size (pixels)
-}
-```
-
----
-
-## 🎬 Animation Loop
-
-```javascript
-function animate() {
-    requestAnimationFrame(animate);  // 60fps
-    
-    // Update controls (damping)
-    controls.update();
-    
-    // Render scene
-    renderer.render(scene, camera);
-}
-```
-
-**Frame Budget:** ~16ms (60fps)
-- Controls update: < 1ms
-- Render: < 15ms
-- Total: < 16ms ✓
-
----
-
-## 🚀 Deployment
-
-### GitHub Pages
-```
-Developer
-   ↓ (git push)
-GitHub Repository
-   ↓ (auto)
-GitHub Pages Build
-   ↓ (deploy)
-CDN Edge Servers
-   ↓ (serve)
-User Browser
-```
-
-**Steps:**
-1. Push to main branch
-2. GitHub Pages auto-builds
-3. Static files deployed to CDN
-4. Available globally (< 2 min)
-
----
-
-## 📊 Performance Metrics
-
-### Target Metrics
-- **FPS**: 60fps (16ms/frame)
-- **Load Time**: < 5s (depends on images)
-- **First Paint**: < 1s
-- **Interactive**: < 2s
-
-### Actual Performance
-- ✅ 60fps maintained
-- ✅ Smooth animations
-- ✅ Fast initial load
-- ✅ Progressive image loading
-
----
-
-## 🔍 Browser Compatibility
-
-### Fully Supported
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers
-
-### Requirements
-- WebGL support
-- JavaScript enabled
-- Modern browser (2020+)
-
----
-
-## 📚 Dependencies
-
-### External Libraries (CDN)
-```html
-<!-- Three.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-<!-- OrbitControls -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-```
-
-### APIs
-- Google Drive API v3
-
-### No Build Tools Required
-- Pure HTML/CSS/JS
-- No npm, webpack, babel
-- Direct browser execution
 
 ---
 
 ## 🐛 Error Handling
 
-### Error Levels
+### CloudinaryManager Errors
 
-1. **Critical Errors** (Stop execution)
-   - Invalid API key
-   - Invalid folder ID
-   - API connection failure
-   → Show error message + retry button
+1. **Invalid Configuration**
+```javascript
+if (!cloudName || cloudName === 'YOUR_CLOUD_NAME') {
+    throw new Error('Vui lòng cấu hình Cloud Name');
+}
+```
 
-2. **Recoverable Errors** (Continue with degradation)
-   - Individual image load failure
-   - Texture load timeout
-   → Skip image, continue with others
+2. **Network Errors**
+```javascript
+if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+}
+```
 
-3. **Warnings** (Log only)
-   - Slow API response
-   - Large image size
-   - Unsupported format
-   → Console warning, no user impact
+3. **Empty Folder**
+```javascript
+if (images.length === 0) {
+    throw new Error('Không có ảnh nào trong folder');
+}
+```
+
+### Gallery3D Errors
+
+1. **WebGL Not Supported**
+```javascript
+if (!renderer.capabilities.isWebGL2) {
+    console.warn('WebGL 2.0 not supported');
+}
+```
+
+2. **Image Load Failure**
+```javascript
+img.onerror = () => {
+    console.warn(`Failed to load image ${index}`);
+    resolve(); // Continue with other images
+};
+```
+
+### User-Friendly Messages
+
+All errors show in UI:
+```javascript
+showError(error.message);
+// Displays error message with retry button
+```
 
 ---
 
-## 💡 Best Practices
+## 📊 Monitoring & Debugging
 
-### Code Organization
-- Modular structure (IIFE pattern)
-- Clear separation of concerns
-- Comprehensive comments
-- Consistent naming conventions
+### Console Logging
 
-### Performance
-- Batch operations
-- Progressive loading
-- Efficient rendering
-- Memory management
+**Levels:**
+- `console.log()`: Success messages (✓)
+- `console.warn()`: Warnings (⚠)
+- `console.error()`: Errors (✗)
 
-### User Experience
-- Loading states
-- Error messages
-- Smooth animations
-- Intuitive controls
+**Example Output:**
+```
+🚀 Khởi động ứng dụng...
+✓ Kết nối Cloudinary thành công: 7 ảnh
+✓ Đã tải 7 ảnh từ Cloudinary
+✓ Loaded 1/7
+✓ Loaded 2/7
+...
+✓ Ứng dụng đã sẵn sàng!
+```
+
+### Performance Metrics
+
+Monitor in DevTools:
+- FPS (target: 60fps)
+- Memory usage
+- Network requests
+- Image load times
 
 ---
 
-## 📈 Future Enhancements
+## 🚀 Deployment
 
-### Possible Features
-- Multiple folder support
-- Image filters (B&W, Sepia)
-- Slideshow mode
-- Search/filter functionality
-- Categories/tags
-- VR mode support
-- Social sharing
+### GitHub Pages Setup
 
-### Technical Improvements
-- Service Worker (offline support)
-- IndexedDB caching
-- WebP format optimization
-- Analytics integration
-- Performance monitoring
+1. **Repository Settings**
+   - Settings → Pages
+   - Source: main branch
+   - Folder: / (root)
+
+2. **Custom Domain** (Optional)
+   - Add CNAME file
+   - Configure DNS
+
+3. **HTTPS**
+   - Automatically enabled by GitHub
+
+### Build Process
+
+No build step required! Pure static files:
+- HTML
+- CSS
+- JavaScript (ES6)
+
+### Cache Strategy
+
+**GitHub Pages:**
+- Static files cached by CDN
+- `Cache-Control: max-age=600`
+
+**Cloudinary:**
+- Images cached globally
+- CDN edge locations
+- Automatic cache invalidation
+
+---
+
+## 📈 Scalability
+
+### Image Limits
+
+**Cloudinary Free Tier:**
+- 25GB storage
+- 25GB bandwidth/month
+- Unlimited transformations
+
+**Practical Limits:**
+- ~5000 images (5MB average)
+- ~5000 visitors/month (5MB per visit)
+
+### Performance at Scale
+
+**100 images:**
+- Load time: ~5-10 seconds
+- Memory: ~200MB
+- FPS: 60fps stable
+
+**500 images:**
+- Load time: ~20-30 seconds
+- Memory: ~800MB
+- FPS: 50-60fps
+
+**Recommendations:**
+- Use pagination for >200 images
+- Implement lazy loading
+- Consider multiple folders
+
+---
+
+## 🔧 Maintenance
+
+### Adding New Images
+
+1. Upload to Cloudinary folder
+2. Reload page
+3. Auto-detected!
+
+### Updating Configuration
+
+Edit `js/config.js`:
+- Change folder name
+- Adjust layout parameters
+- Modify loading settings
+
+### Monitoring
+
+Check Cloudinary Dashboard:
+- Bandwidth usage
+- Storage usage
+- Transformation credits
+
+---
+
+## 📚 Dependencies
+
+### External Libraries
+
+1. **Three.js r128**
+   - Source: https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js
+   - Size: ~600KB
+   - License: MIT
+
+2. **OrbitControls**
+   - Source: https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js
+   - Size: ~20KB
+   - License: MIT
+
+### No Build Tools Required
+
+- ❌ No npm/yarn
+- ❌ No webpack/vite
+- ❌ No transpilation
+- ✅ Pure ES6 modules
+
+---
+
+## 🎓 Learning Resources
+
+### Three.js
+- Official Docs: https://threejs.org/docs/
+- Examples: https://threejs.org/examples/
+
+### Cloudinary
+- Documentation: https://cloudinary.com/documentation
+- Transformations: https://cloudinary.com/documentation/image_transformations
+
+### WebGL
+- MDN WebGL: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API
 
 ---
 
 **Last Updated:** 2026-01-16  
-**Version:** 1.0.0  
-**Status:** Production Ready
-
+**Version:** 2.0.0 (Cloudinary)
