@@ -1,61 +1,236 @@
-# Kaiadmin Lite - Free Bootstrap 5 Admin Dashboard
-![kaiadminlitethumb (1)](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/4793c6b9-7991-4502-8633-14d9ed0ea486)
+# 3D Photo Gallery from Google Drive
 
-This time, I want to introduce you Kaiadmin Lite – a free Bootstrap 5 Admin Dashboard built to easily manage and visualize business data.
+Website hiển thị ảnh từ Google Drive dưới dạng 3D gallery với Three.js, host trên GitHub Pages.
 
-With Kaiadmin Lite, you can complete development faster with no design skills required. Save 1000s of hours of designing and coding work, as we've already done that for you.
+![Status](https://img.shields.io/badge/Status-Active-success)
+![Three.js](https://img.shields.io/badge/Three.js-r128-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-Don't worry about getting started – we've documented how to get started using this dashboard template and utilizing the available components and plugins, making it easy to leverage the full potential of Kaiadmin Bootstrap 5 Admin Dashboard.
+---
 
-**Product Detail** : https://themekita.com/kaiadmin-lite-bootstrap-5-dashboard.html
+## 🎯 Tính năng
 
-**Live Preview** : https://themekita.com/demo-kaiadmin-lite-bootstrap-dashboard/livepreview/demo1/
+- ✨ **3D Gallery**: Hiển thị ảnh trong không gian 3D
+- ☁️ **Google Drive**: Tự động sync ảnh từ Google Drive
+- 🎨 **3 Layouts**: Grid, Circle, Spiral
+- 🖱️ **Interactive**: Xoay, zoom, click
+- 📱 **Responsive**: Mobile-friendly
+- ⚡ **Fast**: Progressive loading
 
-# Get Kaiadmin PRO
+---
 
-![bg_themekitacom](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/195bfcb3-f587-4920-bfba-a583244116ad)
-[Product Detail](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/) |  [Buy This](https://themekita.lemonsqueezy.com/buy/526b603e-8eb3-4dcb-a7a3-842375952df5)
+## 🚀 Quick Start (10 phút)
 
-***
-### [Kaiadmin - Classic Dashboard](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/livepreview/examples/demo1/)
-![Kaiadmin - Classic Dashboard](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/106e027a-4ffe-4856-b729-0e6939c0473d)
+### 1. Tạo Google API Key (5 phút)
 
-***
-### [Kaiadmin - White Classic Dashboard](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/livepreview/examples/demo2/)
-![Kaiadmin - White Classic Dashboard](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/ab70a0f7-116d-46ad-9037-a4081b0db763)
+1. Vào [Google Cloud Console](https://console.cloud.google.com/)
+2. Tạo project mới
+3. Enable **Google Drive API**
+4. Tạo **API Key** (Credentials > Create Credentials)
+5. Restrict API Key:
+   - HTTP referrers: `https://[username].github.io/*`
+   - API: Google Drive API only
 
-***
-### [Kaiadmin - Dark Dashboard](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/livepreview/examples/demo3/)
-![Kaiadmin - Dark Dashboard](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/1a645dc4-d150-45d7-9883-1955b0666d18)
+### 2. Chuẩn bị Google Drive Folder (2 phút)
 
-***
-### [Kaiadmin - Creative Dashboard](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/livepreview/examples/demo4/)
-![Kaiadmin - Creative Dashboard](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/fccc0204-3cb7-45dd-b0a5-532c57af3c12)
+1. Tạo folder trên Google Drive
+2. Upload ảnh (JPG, PNG, GIF, WebP)
+3. Share folder: **"Anyone with the link can view"**
+4. Copy Folder ID từ URL: `drive.google.com/drive/folders/FOLDER_ID`
 
-***
-### [Kaiadmin - Trendy Dashboard](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/livepreview/examples/demo5/)
-![Kaiadmin - Trendy Dashboard](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/bd9d4ce8-08a3-48bd-975e-3d77e5c51388)
+### 3. Cấu hình Code (1 phút)
 
-***
-### [Kaiadmin - Trendy 2 Dashboard](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/livepreview/examples/demo6/)
-![Kaiadmin - Trendy 2 Dashboard](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/3cdd531f-16e0-4c4e-bfbd-89f80d3a25fe)
+Mở `js/config.js`:
 
-***
-### [Kaiadmin - Horizontal Dashboard](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/livepreview/examples/demo7/)
-![Kaiadmin - Horizontal Dashboard](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/2cac93cc-2542-43d9-9072-8625bdd2f8ad)
+```javascript
+GOOGLE_API_KEY: 'YOUR_API_KEY',
+GOOGLE_FOLDER_ID: 'YOUR_FOLDER_ID',
+```
 
-***
-### [Kaiadmin - Enterprise Dashboard](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/livepreview/examples/demo8/)
-![Kaiadmin - Enterprise Dashboard](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/ce2aa3f8-1f62-4ca1-87cd-111b74e50940)
+### 4. Deploy (2 phút)
 
-***
-### [Kaiadmin - Futuristic Dashboard](https://themekita.com/demo-kaiadmin-pro-bootstrap-dashboard/livepreview/examples/demo9/)
-![Kaiadmin - Futuristic Dashboard](https://github.com/Hizrian/kaiadmin-lite/assets/10692084/83f79f3d-d248-4d01-ac15-9c98bee3ca9f)
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/[username]/[username].github.io.git
+git push -u origin main
+```
 
+Enable GitHub Pages: Settings > Pages > Source: main
 
+**Done!** Truy cập: `https://[username].github.io`
 
+---
 
+## 🎮 Cách dùng
 
+### Controls
+- 🖱️ **Drag**: Xoay camera
+- 🔍 **Scroll**: Zoom in/out
+- 👆 **Click**: Xem ảnh full size
+- ⌨️ **Arrow keys**: Navigate ảnh
+- ⌨️ **ESC**: Đóng modal
+- 🔽 **Toggle button**: Ẩn/hiện panel
 
+### Layouts
+- **Grid**: Lưới 5 cột
+- **Circle**: Vòng tròn
+- **Spiral**: Xoắn ốc
 
+---
 
+## 📸 Supported Formats
+
+### ✅ Được hỗ trợ:
+- JPG/JPEG (khuyến nghị)
+- PNG
+- GIF
+- WebP
+
+### ❌ Không hỗ trợ:
+- HEIC/HEIF (Apple format)
+- RAW formats
+- TIFF
+
+**Convert HEIC:** https://heictojpg.com/
+
+---
+
+## 🐛 Troubleshooting
+
+### Lỗi: "Requests from referer null are blocked"
+
+**Nguyên nhân:** Đang mở file HTML trực tiếp (`file://`)
+
+**Giải pháp:** Chạy HTTP server
+
+```bash
+python -m http.server 8000
+# Truy cập: http://localhost:8000
+```
+
+Và thêm `http://localhost:*` vào API Key restrictions.
+
+### Lỗi: CORS blocked
+
+**Nguyên nhân:** File ảnh không public
+
+**Giải pháp:** 
+1. Mở từng ảnh trong folder
+2. Share > "Anyone with the link can view"
+
+### Lỗi: 403 Forbidden
+
+**Nguyên nhân:** API Key chưa đúng hoặc chưa có quyền
+
+**Giải pháp:**
+1. Check API Key trong `config.js`
+2. Check folder và files đều public
+3. Đợi 2-3 phút sau khi config API Key
+
+---
+
+## ⚙️ Customization
+
+### Thay đổi màu sắc
+
+`css/style.css`:
+```css
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+```
+
+### Thay đổi layout
+
+`js/config.js`:
+```javascript
+GALLERY: {
+    gridColumns: 5,      // Số cột
+    circleRadius: 40,    // Bán kính circle
+    spacing: 15,         // Khoảng cách
+}
+```
+
+### Auto-rotate
+
+`js/config.js`:
+```javascript
+ANIMATION: {
+    autoRotate: true,
+    autoRotateSpeed: 0.5,
+}
+```
+
+---
+
+## 📁 Cấu trúc
+
+```
+├── index.html           # Main HTML
+├── css/style.css        # Styling
+├── js/
+│   ├── config.js       # ⚙️ Configuration
+│   ├── gdrive.js       # Google Drive API
+│   ├── gallery3d.js    # Three.js 3D
+│   └── main.js         # Controller
+└── README.md           # This file
+```
+
+---
+
+## 🔧 Development
+
+### Local Testing
+
+```bash
+# Start server
+python -m http.server 8000
+
+# Add to API Key restrictions
+http://localhost:*
+```
+
+### Deploy
+
+```bash
+git add .
+git commit -m "Update"
+git push
+```
+
+GitHub Pages tự động deploy sau 1-2 phút.
+
+---
+
+## 💡 Tips
+
+1. **Optimize ảnh**: Resize về 1920x1080, compress trước khi upload
+2. **Batch upload**: Upload nhiều ảnh cùng lúc vào folder
+3. **Auto sync**: Thêm ảnh mới vào folder, website tự động cập nhật
+4. **Mobile**: Dùng touch gestures để xoay/zoom
+
+---
+
+## 📚 Tech Stack
+
+- **Three.js r128** - 3D rendering
+- **Google Drive API v3** - Cloud storage
+- **Vanilla JS** - No frameworks
+- **GitHub Pages** - Free hosting
+
+---
+
+## 📄 License
+
+MIT License - Free to use
+
+---
+
+## 👤 Author
+
+**Pham Van Trinh**
+- GitHub: [@phamvantrinh99](https://github.com/phamvantrinh99)
+
+---
+
+Made with ❤️ using Three.js and Google Drive API

@@ -1,0 +1,278 @@
+/**
+ * Main Application Controller
+ * Coordinates all modules and handles UI interactions
+ */
+
+(function() {
+    'use strict';
+    
+    // DOM Elements
+    let loadingScreen, loadingText, progressFill;
+    let imageModal, modalImage, modalCaption;
+    let errorMessage, errorText, retryBtn;
+    let imageCountEl;
+    let layoutButtons;
+    
+    // Application state
+    let currentImages = [];
+    let currentImageIndex = 0;
+    
+    /**
+     * Initialize application
+     */
+    async function init() {
+        console.log('🚀 Khởi động ứng dụng...');
+        
+        // Get DOM elements
+        getDOMElements();
+        
+        // Setup event listeners
+        setupEventListeners();
+        
+        // Initialize Google Drive Manager
+        GDriveManager.init(CONFIG.GOOGLE_API_KEY, CONFIG.GOOGLE_FOLDER_ID);
+        
+        // Initialize Three.js Gallery
+        const container = document.getElementById('container');
+        Gallery3D.init(container);
+        
+        try {
+            // Show loading screen
+            showLoading('Đang kết nối Google Drive...');
+            
+            // Test connection first
+            const connected = await GDriveManager.testConnection();
+            if (!connected) {
+                throw new Error('Không thể kết nối Google Drive. Kiểm tra lại API Key và Folder ID.');
+            }
+            
+            // Fetch images
+            showLoading('Đang tải danh sách ảnh...');
+            currentImages = await GDriveManager.fetchImages();
+            
+            // Check if any images were loaded
+            if (currentImages.length === 0) {
+                throw new Error('Không có ảnh nào được hỗ trợ. Vui lòng upload ảnh JPG, PNG, GIF hoặc WebP.');
+            }
+            
+            // Update UI
+            updateImageCount(currentImages.length);
+            
+            // Load images into 3D scene
+            showLoading(`Đang tải ${currentImages.length} ảnh...`);
+            await Gallery3D.loadImages(currentImages);
+            
+            // Start animation
+            Gallery3D.start();
+            
+            // Hide loading screen
+            hideLoading();
+            
+            console.log('✓ Ứng dụng đã sẵn sàng!');
+            
+        } catch (error) {
+            console.error('✗ Lỗi khởi động:', error);
+            showError(error.message);
+        }
+    }
+    
+    /**
+     * Get DOM elements
+     */
+    function getDOMElements() {
+        loadingScreen = document.getElementById('loading-screen');
+        loadingText = document.getElementById('loading-text');
+        progressFill = document.getElementById('progress-fill');
+        
+        imageModal = document.getElementById('image-modal');
+        modalImage = document.getElementById('modal-image');
+        modalCaption = document.getElementById('modal-caption');
+        
+        errorMessage = document.getElementById('error-message');
+        errorText = document.getElementById('error-text');
+        retryBtn = document.getElementById('retry-btn');
+        
+        imageCountEl = document.getElementById('image-count');
+        
+        layoutButtons = {
+            grid: document.getElementById('layout-grid'),
+            circle: document.getElementById('layout-circle'),
+            spiral: document.getElementById('layout-spiral')
+        };
+    }
+    
+    /**
+     * Setup event listeners
+     */
+    function setupEventListeners() {
+        // Toggle panel button
+        const toggleBtn = document.getElementById('toggle-panel');
+        const controlPanel = document.getElementById('control-panel');
+        
+        toggleBtn.addEventListener('click', () => {
+            controlPanel.classList.toggle('hidden');
+            toggleBtn.classList.toggle('collapsed');
+        });
+        
+        // Layout buttons
+        Object.keys(layoutButtons).forEach(layout => {
+            layoutButtons[layout].addEventListener('click', () => {
+                changeLayout(layout);
+            });
+        });
+        
+        // Modal controls
+        const closeBtn = document.querySelector('.close');
+        closeBtn.addEventListener('click', closeModal);
+        
+        const prevBtn = document.getElementById('prev-image');
+        const nextBtn = document.getElementById('next-image');
+        prevBtn.addEventListener('click', showPreviousImage);
+        nextBtn.addEventListener('click', showNextImage);
+        
+        // Close modal on background click
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal) {
+                closeModal();
+            }
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (imageModal.classList.contains('show')) {
+                if (e.key === 'Escape') closeModal();
+                if (e.key === 'ArrowLeft') showPreviousImage();
+                if (e.key === 'ArrowRight') showNextImage();
+            }
+        });
+        
+        // Retry button
+        retryBtn.addEventListener('click', () => {
+            hideError();
+            init();
+        });
+        
+        // Custom events from Gallery3D
+        window.addEventListener('imageClicked', (e) => {
+            const { imageData, imageIndex } = e.detail;
+            showImageModal(imageData, imageIndex);
+        });
+        
+        window.addEventListener('loadingProgress', (e) => {
+            const { progress } = e.detail;
+            updateProgress(progress);
+        });
+    }
+    
+    /**
+     * Change gallery layout
+     */
+    function changeLayout(layout) {
+        // Update button states
+        Object.keys(layoutButtons).forEach(key => {
+            layoutButtons[key].classList.remove('active');
+        });
+        layoutButtons[layout].classList.add('active');
+        
+        // Change layout in 3D gallery
+        Gallery3D.changeLayout(layout);
+        
+        console.log(`Layout changed to: ${layout}`);
+    }
+    
+    /**
+     * Show loading screen
+     */
+    function showLoading(text) {
+        loadingText.textContent = text;
+        loadingScreen.classList.remove('hidden');
+    }
+    
+    /**
+     * Hide loading screen
+     */
+    function hideLoading() {
+        loadingScreen.classList.add('hidden');
+    }
+    
+    /**
+     * Update loading progress
+     */
+    function updateProgress(progress) {
+        progressFill.style.width = `${progress}%`;
+        loadingText.textContent = `Đang tải ảnh... ${Math.round(progress)}%`;
+    }
+    
+    /**
+     * Update image count display
+     */
+    function updateImageCount(count) {
+        imageCountEl.textContent = `📷 ${count} ảnh`;
+    }
+    
+    /**
+     * Show error message
+     */
+    function showError(message) {
+        errorText.textContent = message;
+        errorMessage.classList.remove('hidden');
+        hideLoading();
+    }
+    
+    /**
+     * Hide error message
+     */
+    function hideError() {
+        errorMessage.classList.add('hidden');
+    }
+    
+    /**
+     * Show image modal
+     */
+    function showImageModal(imageData, imageIndex) {
+        currentImageIndex = imageIndex;
+        modalImage.src = imageData.fullUrl;
+        modalCaption.textContent = imageData.name;
+        imageModal.classList.add('show');
+        
+        console.log('Showing image:', imageData.name);
+    }
+    
+    /**
+     * Close modal
+     */
+    function closeModal() {
+        imageModal.classList.remove('show');
+    }
+    
+    /**
+     * Show previous image
+     */
+    function showPreviousImage() {
+        currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
+        const imageData = currentImages[currentImageIndex];
+        modalImage.src = imageData.fullUrl;
+        modalCaption.textContent = imageData.name;
+    }
+    
+    /**
+     * Show next image
+     */
+    function showNextImage() {
+        currentImageIndex = (currentImageIndex + 1) % currentImages.length;
+        const imageData = currentImages[currentImageIndex];
+        modalImage.src = imageData.fullUrl;
+        modalCaption.textContent = imageData.name;
+    }
+    
+    /**
+     * Start application when DOM is ready
+     */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    
+})();
+
