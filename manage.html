@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Management - 3D Photo Gallery</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/manage.css">
+</head>
+<body>
+    <!-- Hamburger Menu -->
+    <button id="hamburger-menu" class="hamburger-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Navigation Menu -->
+    <nav id="nav-menu" class="nav-menu">
+        <div class="nav-header">
+            <h2>Menu</h2>
+            <button id="close-menu" class="close-menu">&times;</button>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">🏠 Gallery</a></li>
+            <li><a href="manage.html" class="active">⚙️ Manage Images</a></li>
+        </ul>
+    </nav>
+
+    <!-- Overlay -->
+    <div id="nav-overlay" class="nav-overlay"></div>
+
+    <!-- Main Container -->
+    <div class="manage-container">
+        <header class="manage-header">
+            <h1>📁 Image Management</h1>
+            <p>Upload, view, and delete your images</p>
+        </header>
+
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <h2>📤 Upload Images</h2>
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">📷</div>
+                <p>Drag & Drop images here</p>
+                <p class="upload-or">or</p>
+                <button class="btn-primary" id="select-files-btn">Select Files</button>
+                <input type="file" id="file-input" multiple accept="image/*" hidden>
+            </div>
+            <div class="upload-progress" id="upload-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <p id="progress-text">Uploading...</p>
+            </div>
+        </section>
+
+        <!-- Images List Section -->
+        <section class="images-section">
+            <div class="section-header">
+                <h2>🖼️ Your Images (<span id="image-count">0</span>)</h2>
+                <div class="actions">
+                    <button class="btn-secondary" id="refresh-btn">🔄 Refresh</button>
+                    <input type="text" id="search-input" placeholder="🔍 Search images..." class="search-input">
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Loading images...</p>
+            </div>
+
+            <!-- Images Grid -->
+            <div class="images-grid" id="images-grid">
+                <!-- Images will be loaded here dynamically -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-icon">📭</div>
+                <h3>No images found</h3>
+                <p>Upload some images to get started!</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content delete-modal-content">
+            <h3>⚠️ Confirm Delete</h3>
+            <p>Are you sure you want to delete this image?</p>
+            <p class="image-name" id="delete-image-name"></p>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cancel-delete-btn">Cancel</button>
+                <button class="btn-danger" id="confirm-delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="error-toast" class="toast error-toast">
+        <span id="error-message"></span>
+    </div>
+
+    <!-- Success Message -->
+    <div id="success-toast" class="toast success-toast">
+        <span id="success-message"></span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/cloudinary.js"></script>
+    <script src="js/manage.js"></script>
+</body>
+</html>
+

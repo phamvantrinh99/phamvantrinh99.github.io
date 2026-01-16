@@ -159,10 +159,90 @@ const CloudinaryManager = (() => {
         }
     }
     
+    /**
+     * Get all images (alias for fetchImages for consistency)
+     */
+    async function getImages() {
+        return await fetchImages();
+    }
+    
+    /**
+     * Upload image to Cloudinary
+     * Note: This requires unsigned upload preset configured in Cloudinary
+     */
+    async function uploadImage(file) {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CONFIG.CLOUDINARY_UPLOAD_PRESET);
+            formData.append('folder', CONFIG.CLOUDINARY_FOLDER); // Upload to specific folder
+            formData.append('tags', tagName); // Add to the same tag
+            
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                {
+                    method: 'POST',
+                    body: formData
+                }
+            );
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `Upload failed: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('✓ Image uploaded:', data.public_id);
+            return data;
+            
+        } catch (error) {
+            console.error('❌ Upload error:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Delete image from Cloudinary
+     * Note: Client-side deletion requires Admin API which needs API secret
+     * This is a placeholder - actual deletion should be done server-side
+     */
+    async function deleteImage(publicId) {
+        // WARNING: This method cannot be implemented client-side securely
+        // because it requires API secret which should never be exposed
+        
+        console.warn('⚠️ Client-side deletion is not secure!');
+        console.warn('⚠️ Please implement server-side deletion endpoint.');
+        console.warn('⚠️ For now, this is a placeholder that simulates deletion.');
+        
+        // Simulate deletion (for demo purposes)
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                console.log('✓ Simulated deletion of:', publicId);
+                resolve({ result: 'ok' });
+            }, 500);
+        });
+        
+        // ACTUAL IMPLEMENTATION SHOULD BE:
+        // Send request to YOUR server endpoint
+        // Your server calls Cloudinary Admin API with API secret
+        // Example:
+        /*
+        const response = await fetch('/api/delete-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ publicId })
+        });
+        return await response.json();
+        */
+    }
+    
     // Public API
     return {
         init,
         fetchImages,
+        getImages,
+        uploadImage,
+        deleteImage,
         testConnection,
         getThumbnailUrl,
         getFullImageUrl

@@ -12,6 +12,7 @@
     let errorMessage, errorText, retryBtn;
     let imageCountEl;
     let layoutButtons;
+    let hamburgerMenu, navMenu, navOverlay, closeMenuBtn;
     
     // Application state
     let currentImages = [];
@@ -96,12 +97,29 @@
         
         // Layout dropdown (not buttons anymore)
         layoutButtons = {}; // Keep for compatibility but not used
+        
+        // Navigation
+        hamburgerMenu = document.getElementById('hamburger-menu');
+        navMenu = document.getElementById('nav-menu');
+        navOverlay = document.getElementById('nav-overlay');
+        closeMenuBtn = document.getElementById('close-menu');
     }
     
     /**
      * Setup event listeners
      */
     function setupEventListeners() {
+        // Navigation menu
+        if (hamburgerMenu) {
+            hamburgerMenu.addEventListener('click', toggleMenu);
+        }
+        if (closeMenuBtn) {
+            closeMenuBtn.addEventListener('click', closeMenu);
+        }
+        if (navOverlay) {
+            navOverlay.addEventListener('click', closeMenu);
+        }
+        
         // Toggle panel button
         const toggleBtn = document.getElementById('toggle-panel');
         const controlPanel = document.getElementById('control-panel');
@@ -311,6 +329,24 @@
         const imageData = currentImages[currentImageIndex];
         modalImage.src = imageData.fullUrl;
         modalCaption.textContent = imageData.name;
+    }
+    
+    /**
+     * Toggle navigation menu
+     */
+    function toggleMenu() {
+        if (hamburgerMenu) hamburgerMenu.classList.toggle('active');
+        if (navMenu) navMenu.classList.toggle('active');
+        if (navOverlay) navOverlay.classList.toggle('active');
+    }
+    
+    /**
+     * Close navigation menu
+     */
+    function closeMenu() {
+        if (hamburgerMenu) hamburgerMenu.classList.remove('active');
+        if (navMenu) navMenu.classList.remove('active');
+        if (navOverlay) navOverlay.classList.remove('active');
     }
     
     /**

@@ -6,8 +6,31 @@
     <meta name="description" content="3D Photo Gallery from Google Drive">
     <title>3D Photo Gallery</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/manage.css">
 </head>
 <body>
+    <!-- Hamburger Menu -->
+    <button id="hamburger-menu" class="hamburger-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Navigation Menu -->
+    <nav id="nav-menu" class="nav-menu">
+        <div class="nav-header">
+            <h2>Menu</h2>
+            <button id="close-menu" class="close-menu">&times;</button>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">🏠 Gallery</a></li>
+            <li><a href="manage.html">⚙️ Manage Images</a></li>
+        </ul>
+    </nav>
+
+    <!-- Overlay -->
+    <div id="nav-overlay" class="nav-overlay"></div>
+
     <!-- Loading Screen -->
     <div id="loading-screen">
         <div class="loader">

@@ -6,8 +6,11 @@ const CONFIG = {
     // 2. Copy "Cloud name" từ Dashboard
     // 3. Tag ảnh trong Media Library (ví dụ: "gallery")
     // 4. Settings → Security → Uncheck "Resource list"
+    // 5. Settings → Upload → Create unsigned upload preset: "ml_default"
     CLOUDINARY_CLOUD_NAME: 'disufd9md',
     CLOUDINARY_TAG: 'uploaded',
+    CLOUDINARY_FOLDER: 'Test folder', // Folder to upload images to
+    CLOUDINARY_UPLOAD_PRESET: 'ml_default', // Unsigned upload preset
     
     // Three.js Scene Configuration
     SCENE: {
