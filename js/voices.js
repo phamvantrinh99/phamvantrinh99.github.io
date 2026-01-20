@@ -44,7 +44,7 @@
         const hamburgerMenu = document.getElementById('hamburger-menu');
         hamburgerMenu.addEventListener('click', toggleNavMenu);
 
-        const closeNavBtn = document.querySelector('.close-nav');
+        const closeNavBtn = document.getElementById('close-menu');
         closeNavBtn.addEventListener('click', toggleNavMenu);
 
         const navOverlay = document.getElementById('nav-overlay');
@@ -382,10 +382,12 @@
      * Toggle navigation menu
      */
     function toggleNavMenu() {
+        const hamburgerMenu = document.getElementById('hamburger-menu');
         const navMenu = document.getElementById('nav-menu');
         const navOverlay = document.getElementById('nav-overlay');
-        navMenu.classList.toggle('open');
-        navOverlay.classList.toggle('open');
+        hamburgerMenu.classList.toggle('active');
+        navMenu.classList.toggle('active');
+        navOverlay.classList.toggle('active');
     }
 
     // Initialize on load
