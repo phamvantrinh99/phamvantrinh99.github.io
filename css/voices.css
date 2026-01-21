@@ -222,7 +222,16 @@ body {
     color: #fff;
 }
 
+.filter-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
 #language-filter {
+    flex: 1;
+    min-width: 200px;
     padding: 10px 15px;
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -241,6 +250,54 @@ body {
 #language-filter option {
     background: #1a1a2e;
     color: #fff;
+}
+
+/* Export Button */
+.export-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #1e7e34, #28a745);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    white-space: nowrap;
+}
+
+.export-btn:hover {
+    background: linear-gradient(135deg, #155724, #1e7e34);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.export-btn:active {
+    transform: translateY(0);
+}
+
+/* Export Success Animation */
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
 }
 
 /* Voice List */

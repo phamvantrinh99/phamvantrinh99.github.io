@@ -82,6 +82,12 @@
         // Buttons
         stopAllBtn.addEventListener('click', stopAllSpeech);
         testAllBtn.addEventListener('click', testAllVoices);
+        
+        // Export button
+        const exportBtn = document.getElementById('export-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', exportVoicesToExcel);
+        }
     }
 
     /**
@@ -171,6 +177,95 @@
         } catch (error) {
             return langCode;
         }
+    }
+
+    /**
+     * Export voices to Excel (CSV format)
+     */
+    function exportVoicesToExcel() {
+        // Get current voices to export
+        const voicesToExport = allVoices.length > 0 ? allVoices : [];
+        
+        if (voicesToExport.length === 0) {
+            alert('No voices available to export!');
+            return;
+        }
+
+        // Create CSV header
+        const headers = ['Name', 'Language', 'Language Code', 'Default', 'Type', 'URI'];
+        
+        // Create CSV rows
+        const rows = voicesToExport.map(voice => {
+            return [
+                `"${voice.name.replace(/"/g, '""')}"`,
+                `"${getLanguageName(voice.lang)}"`,
+                voice.lang,
+                voice.default ? 'Yes' : 'No',
+                voice.localService ? 'Local' : 'Remote',
+                `"${(voice.voiceURI || 'N/A').replace(/"/g, '""')}"`
+            ].join(',');
+        });
+
+        // Combine header and rows
+        const csvContent = [headers.join(','), ...rows].join('\n');
+
+        // Create blob and download
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        const timestamp = new Date().toISOString().split('T')[0];
+        const filename = `voices_list_${timestamp}.csv`;
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+        
+        console.log(`✅ Exported ${voicesToExport.length} voices to ${filename}`);
+        
+        // Show success message
+        showExportSuccess(voicesToExport.length, filename);
+    }
+
+    /**
+     * Show export success message
+     */
+    function showExportSuccess(count, filename) {
+        const message = document.createElement('div');
+        message.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #1e7e34, #28a745);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            z-index: 10000;
+            font-size: 14px;
+            font-weight: 600;
+            animation: slideInRight 0.3s ease;
+        `;
+        message.innerHTML = `
+            ✅ Exported ${count} voices<br>
+            <small style="opacity: 0.9; font-weight: 400;">File: ${filename}</small>
+        `;
+        
+        document.body.appendChild(message);
+        
+        setTimeout(() => {
+            message.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => {
+                document.body.removeChild(message);
+            }, 300);
+        }, 3000);
     }
 
     /**
