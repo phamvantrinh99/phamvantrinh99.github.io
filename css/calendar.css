@@ -55,18 +55,9 @@ body {
     box-shadow: 0 4px 20px rgba(255, 107, 107, 0.2);
 }
 
+
 .countdown-icon {
     font-size: 60px;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.1);
-    }
 }
 
 .countdown-content {
@@ -93,6 +84,8 @@ body {
     padding: 15px 20px;
     border-radius: 10px;
     min-width: 80px;
+    position: relative;
+    border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
 .countdown-number {
@@ -107,6 +100,7 @@ body {
     color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
     margin-top: 5px;
+    letter-spacing: 1px;
 }
 
 .countdown-date {
@@ -117,42 +111,8 @@ body {
 
 /* Calendar Controls */
 .calendar-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.control-btn {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-    border: 2px solid rgba(102, 126, 234, 0.3);
-    border-radius: 10px;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.control-btn:hover {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4));
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.control-btn span {
-    font-size: 16px;
-}
-
-.month-year-display {
     text-align: center;
-    flex: 1;
+    margin-bottom: 25px;
 }
 
 .month-year-display h2 {
@@ -165,25 +125,6 @@ body {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.6);
     margin-top: 5px;
-}
-
-.today-btn {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #1e7e34, #28a745);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-}
-
-.today-btn:hover {
-    background: linear-gradient(135deg, #155724, #1e7e34);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
 }
 
 /* Current Date Info */
@@ -266,6 +207,50 @@ body {
 /* Calendar Grid */
 .calendar-wrapper {
     margin-bottom: 30px;
+    position: relative;
+}
+
+/* Navigation Buttons */
+.calendar-nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.nav-btn {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-btn:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4));
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.nav-btn:active {
+    transform: scale(0.95);
+}
+
+.nav-btn.today {
+    background: linear-gradient(135deg, #1e7e34, #28a745);
+    border-color: rgba(40, 167, 69, 0.5);
+}
+
+.nav-btn.today:hover {
+    background: linear-gradient(135deg, #155724, #1e7e34);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
 }
 
 .calendar-grid {
@@ -556,6 +541,12 @@ body {
 
     .countdown-label {
         font-size: 10px;
+    }
+
+    .nav-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
     }
 
     .calendar-day {

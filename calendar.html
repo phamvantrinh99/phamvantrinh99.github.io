@@ -70,22 +70,10 @@
 
         <!-- Calendar Controls -->
         <div class="calendar-controls">
-            <button id="prev-month" class="control-btn">
-                <span>◀</span> Previous
-            </button>
-            
             <div class="month-year-display">
                 <h2 id="current-month-year">January 2026</h2>
                 <p id="current-lunar-month" class="lunar-month"></p>
             </div>
-            
-            <button id="today-btn" class="today-btn">
-                📍 Today
-            </button>
-            
-            <button id="next-month" class="control-btn">
-                Next <span>▶</span>
-            </button>
         </div>
 
         <!-- Current Date Info -->
@@ -124,6 +112,21 @@
 
         <!-- Calendar Grid -->
         <div class="calendar-wrapper">
+            <!-- Navigation Buttons -->
+            <div class="calendar-nav-buttons">
+                <button id="prev-month" class="nav-btn">
+                    <span>◀</span>
+                </button>
+                
+                <button id="today-btn" class="nav-btn today">
+                    📍
+                </button>
+                
+                <button id="next-month" class="nav-btn">
+                    <span>▶</span>
+                </button>
+            </div>
+            
             <div class="calendar-grid">
                 <!-- Weekday Headers -->
                 <div class="weekday-header">Mon</div>
