@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="css/calendar.css">
 </head>
 <body>
+    <!-- Particles Background -->
+    <div class="particles-container" id="particles-container"></div>
+
     <!-- Hamburger Menu -->
     <button id="hamburger-menu" class="hamburger-menu">
         <span></span>
@@ -103,16 +106,19 @@
         <div class="calendar-wrapper">
             <!-- Navigation Buttons -->
             <div class="calendar-nav-buttons">
-                <button id="prev-month" class="nav-btn">
-                    <span>◀</span>
+                <button id="prev-month" class="nav-btn prev-btn" title="Previous Month">
+                    <span class="btn-icon">◀</span>
+                    <span class="btn-text">Previous</span>
                 </button>
                 
-                <button id="today-btn" class="nav-btn today">
-                    📍
+                <button id="today-btn" class="nav-btn today-btn" title="Jump to Today">
+                    <span class="btn-icon">📍</span>
+                    <span class="btn-text">Today</span>
                 </button>
                 
-                <button id="next-month" class="nav-btn">
-                    <span>▶</span>
+                <button id="next-month" class="nav-btn next-btn" title="Next Month">
+                    <span class="btn-text">Next</span>
+                    <span class="btn-icon">▶</span>
                 </button>
             </div>
             
@@ -159,6 +165,7 @@
 
     <script src="js/lunar.js"></script>
     <script src="js/calendar.js"></script>
+    <script src="js/particles-calendar.js"></script>
 </body>
 </html>
 
