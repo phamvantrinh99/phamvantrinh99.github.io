@@ -88,7 +88,8 @@
      * Setup event listeners
      */
     function setupEventListeners() {
-        prevMonthBtn.addEventListener('click', () => {
+        prevMonthBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             displayMonth--;
             if (displayMonth < 0) {
                 displayMonth = 11;
@@ -97,7 +98,8 @@
             renderCalendar();
         });
 
-        nextMonthBtn.addEventListener('click', () => {
+        nextMonthBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             displayMonth++;
             if (displayMonth > 11) {
                 displayMonth = 0;
@@ -106,7 +108,8 @@
             renderCalendar();
         });
 
-        todayBtn.addEventListener('click', () => {
+        todayBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             currentDate = new Date();
             displayMonth = currentDate.getMonth();
             displayYear = currentDate.getFullYear();
@@ -244,7 +247,9 @@
         dayEl.innerHTML = content;
 
         // Click handler
-        dayEl.addEventListener('click', () => {
+        dayEl.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             showDayDetails(day, month, year, lunar, holidayInfo);
         });
 

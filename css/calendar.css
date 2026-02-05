@@ -6,6 +6,7 @@ body {
     overflow-x: hidden !important;
     background: #1a1a2e !important;
     animation: none !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 .calendar-container {
@@ -17,6 +18,7 @@ body {
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
     color: #fff;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 /* Header */
@@ -198,6 +200,9 @@ body {
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .nav-btn::before {
@@ -222,6 +227,7 @@ body {
 
 .nav-btn:active {
     transform: translateY(-1px) scale(0.98);
+    background: linear-gradient(135deg, #5568d3, #6a3f91);
 }
 
 .nav-btn.today {
@@ -234,6 +240,10 @@ body {
 
 .nav-btn.today:hover {
     box-shadow: 0 6px 20px rgba(40, 167, 69, 0.6);
+}
+
+.nav-btn.today:active {
+    background: linear-gradient(135deg, #1e7e34, #17a589);
 }
 
 .calendar-grid {
@@ -275,12 +285,20 @@ body {
     gap: 6px;
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .calendar-day:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.calendar-day:active {
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .calendar-day.other-month {
@@ -479,14 +497,17 @@ body {
     .calendar-day {
         padding: 6px;
         gap: 4px;
+        min-height: 60px;
     }
 
     .solar-day {
         font-size: 16px;
+        line-height: 1.2;
     }
 
     .lunar-day {
         font-size: 10px;
+        line-height: 1.2;
     }
 
     .holiday-indicator {
@@ -509,6 +530,11 @@ body {
 }
 
 @media (max-width: 480px) {
+    .calendar-container {
+        margin-top: 70px;
+        padding: 15px;
+    }
+
     .countdown-timer {
         gap: 10px;
     }
@@ -541,14 +567,17 @@ body {
     .calendar-day {
         padding: 4px;
         gap: 3px;
+        min-height: 55px;
     }
 
     .solar-day {
         font-size: 14px;
+        line-height: 1.2;
     }
 
     .lunar-day {
         font-size: 9px;
+        line-height: 1.2;
     }
 
     .holiday-indicator {
