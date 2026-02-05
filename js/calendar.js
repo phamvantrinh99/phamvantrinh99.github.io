@@ -5,8 +5,6 @@
     const calendarDays = document.getElementById('calendar-days');
     const currentMonthYear = document.getElementById('current-month-year');
     const currentLunarMonth = document.getElementById('current-lunar-month');
-    const solarDateDisplay = document.getElementById('solar-date-display');
-    const lunarDateDisplay = document.getElementById('lunar-date-display');
     const prevMonthBtn = document.getElementById('prev-month');
     const nextMonthBtn = document.getElementById('next-month');
     const todayBtn = document.getElementById('today-btn');
@@ -63,7 +61,6 @@
     function init() {
         setupEventListeners();
         renderCalendar();
-        updateCurrentDateInfo();
         renderUpcomingHolidays();
         startCountdown();
         
@@ -114,7 +111,6 @@
             displayMonth = currentDate.getMonth();
             displayYear = currentDate.getFullYear();
             renderCalendar();
-            updateCurrentDateInfo();
         });
     }
 
@@ -271,26 +267,6 @@
         }
         
         alert(message);
-    }
-
-    /**
-     * Update current date info
-     */
-    function updateCurrentDateInfo() {
-        const today = new Date();
-        const day = today.getDate();
-        const month = today.getMonth() + 1;
-        const year = today.getFullYear();
-        
-        // Solar date
-        const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][today.getDay()];
-        solarDateDisplay.textContent = `${dayOfWeek}, ${monthNames[month - 1]} ${day}, ${year}`;
-        
-        // Lunar date
-        const lunar = LunarCalendar.convertSolar2Lunar(day, month, year);
-        const canChi = LunarCalendar.getYearCanChi(lunar.year);
-        const zodiac = LunarCalendar.getYearZodiac(lunar.year);
-        lunarDateDisplay.textContent = `${lunar.day}/${lunar.month}/${lunar.year} - ${canChi} (${zodiac})`;
     }
 
     /**
