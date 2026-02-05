@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vietnamese Calendar - Lịch Việt Nam</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/calendar.css">
+</head>
+<body>
+    <!-- Hamburger Menu -->
+    <button id="hamburger-menu" class="hamburger-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Navigation Menu -->
+    <nav id="nav-menu" class="nav-menu">
+        <div class="nav-header">
+            <h2>Menu</h2>
+            <button id="close-menu" class="close-menu">&times;</button>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">🏠 Gallery</a></li>
+            <li><a href="manage.html">⚙️ Manage Images</a></li>
+            <li><a href="voices.html">🎤 Voice Synthesis</a></li>
+            <li><a href="calendar.html" class="active">📅 Calendar</a></li>
+        </ul>
+    </nav>
+
+    <!-- Navigation Overlay -->
+    <div id="nav-overlay" class="nav-overlay"></div>
+
+    <div class="calendar-container">
+        <!-- Header -->
+        <div class="calendar-header">
+            <h1>📅 Lịch Việt Nam</h1>
+            <p class="subtitle">Vietnamese Calendar with Lunar Dates & Holidays</p>
+        </div>
+
+        <!-- Countdown Section -->
+        <div class="countdown-section">
+            <div class="countdown-card">
+                <div class="countdown-icon">🎊</div>
+                <div class="countdown-content">
+                    <h3 id="countdown-title">Countdown to Tết</h3>
+                    <div class="countdown-timer">
+                        <div class="countdown-item">
+                            <span id="days-count" class="countdown-number">0</span>
+                            <span class="countdown-label">Days</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="hours-count" class="countdown-number">0</span>
+                            <span class="countdown-label">Hours</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="minutes-count" class="countdown-number">0</span>
+                            <span class="countdown-label">Minutes</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="seconds-count" class="countdown-number">0</span>
+                            <span class="countdown-label">Seconds</span>
+                        </div>
+                    </div>
+                    <p id="countdown-date" class="countdown-date"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Controls -->
+        <div class="calendar-controls">
+            <button id="prev-month" class="control-btn">
+                <span>◀</span> Previous
+            </button>
+            
+            <div class="month-year-display">
+                <h2 id="current-month-year">January 2026</h2>
+                <p id="current-lunar-month" class="lunar-month"></p>
+            </div>
+            
+            <button id="today-btn" class="today-btn">
+                📍 Today
+            </button>
+            
+            <button id="next-month" class="control-btn">
+                Next <span>▶</span>
+            </button>
+        </div>
+
+        <!-- Current Date Info -->
+        <div class="current-date-info">
+            <div class="date-info-card">
+                <div class="solar-date">
+                    <span class="date-label">Solar Date:</span>
+                    <span id="solar-date-display" class="date-value"></span>
+                </div>
+                <div class="lunar-date">
+                    <span class="date-label">Lunar Date:</span>
+                    <span id="lunar-date-display" class="date-value"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-color today"></span>
+                <span>Today</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color holiday"></span>
+                <span>Holiday</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color weekend"></span>
+                <span>Weekend</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color lunar-special"></span>
+                <span>Lunar Special</span>
+            </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="calendar-wrapper">
+            <div class="calendar-grid">
+                <!-- Weekday Headers -->
+                <div class="weekday-header">Mon</div>
+                <div class="weekday-header">Tue</div>
+                <div class="weekday-header">Wed</div>
+                <div class="weekday-header">Thu</div>
+                <div class="weekday-header">Fri</div>
+                <div class="weekday-header">Sat</div>
+                <div class="weekday-header">Sun</div>
+                
+                <!-- Calendar Days (will be generated by JS) -->
+                <div id="calendar-days"></div>
+            </div>
+        </div>
+
+        <!-- Holiday List -->
+        <div class="holiday-section">
+            <h3>🎉 Upcoming Holidays</h3>
+            <div id="holiday-list" class="holiday-list"></div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-section">
+            <h3>ℹ️ About Vietnamese Calendar</h3>
+            <div class="info-content">
+                <p>
+                    <strong>Lunar Calendar (Âm Lịch):</strong> The Vietnamese lunar calendar is based on the Chinese calendar system, 
+                    with adjustments for the Vietnamese timezone. It's used to determine traditional holidays and festivals.
+                </p>
+                <p>
+                    <strong>Tết Nguyên Đán:</strong> Vietnamese New Year, the most important holiday in Vietnam, 
+                    falls on the first day of the first lunar month (usually between late January and mid-February).
+                </p>
+                <p>
+                    <strong>Public Holidays:</strong> Vietnam observes both solar calendar holidays (like New Year's Day, 
+                    National Day) and lunar calendar holidays (like Tết, Mid-Autumn Festival).
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/lunar.js"></script>
+    <script src="js/calendar.js"></script>
+</body>
+</html>
+
