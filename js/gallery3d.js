@@ -11,7 +11,7 @@ const Gallery3D = (() => {
     // Gallery objects
     let imageMeshes = [];
     let images = [];
-    let currentLayout = 'grid';
+    let currentLayout = 'sphere'; // Default to sphere layout
     let galleryGroup; // Group to hold all images for gallery rotation
     
     // Animation
@@ -30,9 +30,9 @@ const Gallery3D = (() => {
         particleCount: 1000,
         particleSpeed: 1.0,
         glowIntensity: 1.5,
-        autoRotateImages: false,
+        autoRotateImages: true, // Enable rotate per image by default
         rotationSpeed: 1.0,
-        autoRotateGallery: false,
+        autoRotateGallery: true, // Enable rotate all by default
         galleryRotationSpeed: 0.5
     };
     

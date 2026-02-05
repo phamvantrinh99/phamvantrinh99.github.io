@@ -192,6 +192,10 @@
      * Setup control listeners for sliders and checkboxes
      */
     function setupControlListeners() {
+        // Layout select - set default to sphere
+        const layoutSelect = document.getElementById('layout-select');
+        layoutSelect.value = 'sphere';
+        
         // Particle Count
         const particleCountSlider = document.getElementById('particle-count');
         const particleCountValue = document.getElementById('particle-count-value');
@@ -210,14 +214,16 @@
             Gallery3D.updateControls({ particleSpeed: value });
         });
         
-        // Auto Rotate Images Toggle
+        // Auto Rotate Images Toggle - set default to checked
         const autoRotateToggle = document.getElementById('auto-rotate-images');
+        autoRotateToggle.checked = true; // Enable by default
         autoRotateToggle.addEventListener('change', (e) => {
             Gallery3D.updateControls({ autoRotateImages: e.target.checked });
         });
         
-        // Auto Rotate Gallery Toggle
+        // Auto Rotate Gallery Toggle - set default to checked
         const autoRotateGalleryToggle = document.getElementById('auto-rotate-gallery');
+        autoRotateGalleryToggle.checked = true; // Enable by default
         autoRotateGalleryToggle.addEventListener('change', (e) => {
             Gallery3D.updateControls({ autoRotateGallery: e.target.checked });
         });
