@@ -98,6 +98,10 @@ const Gallery3D = (() => {
         window.addEventListener('click', onMouseClick);
         window.addEventListener('mousemove', onMouseMove);
         
+        // Touch events for mobile
+        window.addEventListener('touchend', onTouchEnd);
+        window.addEventListener('touchmove', onTouchMove);
+        
         console.log('✓ Three.js scene initialized');
     }
     
@@ -908,6 +912,85 @@ const Gallery3D = (() => {
                 window.dispatchEvent(new CustomEvent('imageClicked', {
                     detail: { imageData, imageIndex }
                 }));
+            }
+        }
+    }
+    
+    /**
+     * Handle touch end (mobile tap)
+     */
+    function onTouchEnd(event) {
+        // Check if touch is on UI controls
+        const uiControls = document.getElementById('ui-controls');
+        if (uiControls && event.target && uiControls.contains(event.target)) {
+            return;
+        }
+        
+        // Prevent default and stop propagation
+        if (event.cancelable) {
+            event.preventDefault();
+        }
+        
+        // Get touch position
+        const touch = event.changedTouches[0];
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+        
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(imageMeshes, true);
+        
+        if (intersects.length > 0) {
+            // Get the parent group
+            let clickedObject = intersects[0].object;
+            while (clickedObject.parent && !clickedObject.userData.isImageMesh) {
+                clickedObject = clickedObject.parent;
+            }
+            
+            if (clickedObject.userData.isImageMesh) {
+                const imageData = clickedObject.userData.imageData;
+                const imageIndex = clickedObject.userData.imageIndex;
+                
+                // Trigger event for modal
+                window.dispatchEvent(new CustomEvent('imageClicked', {
+                    detail: { imageData, imageIndex }
+                }));
+            }
+        }
+    }
+    
+    /**
+     * Handle touch move (mobile hover effect)
+     */
+    function onTouchMove(event) {
+        // Check if touch is on UI controls
+        const uiControls = document.getElementById('ui-controls');
+        if (uiControls && event.target && uiControls.contains(event.target)) {
+            if (hoveredMesh) {
+                hoveredMesh = null;
+            }
+            return;
+        }
+        
+        // Get touch position
+        const touch = event.touches[0];
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+        
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(imageMeshes, true);
+        
+        if (intersects.length > 0) {
+            let newHovered = intersects[0].object;
+            while (newHovered.parent && !newHovered.userData.isImageMesh) {
+                newHovered = newHovered.parent;
+            }
+            
+            if (newHovered !== hoveredMesh && newHovered.userData.isImageMesh) {
+                hoveredMesh = newHovered;
+            }
+        } else {
+            if (hoveredMesh) {
+                hoveredMesh = null;
             }
         }
     }
