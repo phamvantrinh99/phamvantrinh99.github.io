@@ -263,15 +263,71 @@
         const canChi = LunarCalendar.getYearCanChi(lunar.year);
         const zodiac = LunarCalendar.getYearZodiac(lunar.year);
         
-        let message = `📅 Solar: ${day}/${month}/${year}\n`;
-        message += `🌙 Lunar: ${lunar.day}/${lunar.month}/${lunar.year}${lunar.leap ? ' (nhuận)' : ''}\n`;
-        message += `🐉 Year: ${canChi} (${zodiac})\n`;
+        // Create popup
+        const popup = document.createElement('div');
+        popup.className = 'date-info-popup';
+        popup.innerHTML = `
+            <div class="popup-overlay"></div>
+            <div class="popup-content">
+                <button class="popup-close">&times;</button>
+                <div class="popup-header">
+                    <div class="popup-icon">📅</div>
+                    <h3 class="popup-title">Thông tin ngày</h3>
+                </div>
+                <div class="popup-body">
+                    <div class="info-row">
+                        <span class="info-icon">📅</span>
+                        <span class="info-label">Dương lịch:</span>
+                        <span class="info-value">${day}/${month}/${year}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-icon">🌙</span>
+                        <span class="info-label">Âm lịch:</span>
+                        <span class="info-value">${lunar.day}/${lunar.month}/${lunar.year}${lunar.leap ? ' (nhuận)' : ''}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-icon">🐉</span>
+                        <span class="info-label">Năm:</span>
+                        <span class="info-value">${canChi} (${zodiac})</span>
+                    </div>
+                    ${holidayInfo ? `
+                    <div class="info-row holiday-row">
+                        <span class="info-icon">${holidayInfo.icon}</span>
+                        <span class="info-label">Lễ:</span>
+                        <span class="info-value holiday-name">${holidayInfo.name}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
         
-        if (holidayInfo) {
-            message += `\n🎉 ${holidayInfo.name}`;
-        }
+        document.body.appendChild(popup);
         
-        alert(message);
+        // Close handlers
+        const closePopup = (e) => {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            popup.classList.remove('show');
+            setTimeout(() => popup.remove(), 300);
+        };
+        
+        // Add event listeners
+        const closeBtn = popup.querySelector('.popup-close');
+        const overlay = popup.querySelector('.popup-overlay');
+        const content = popup.querySelector('.popup-content');
+        
+        closeBtn.addEventListener('click', closePopup);
+        overlay.addEventListener('click', closePopup);
+        
+        // Prevent closing when clicking on content
+        content.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Trigger animation after event listeners are attached
+        setTimeout(() => popup.classList.add('show'), 10);
     }
 
     /**

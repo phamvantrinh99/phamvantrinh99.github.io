@@ -11,6 +11,237 @@ body {
     position: relative;
 }
 
+/* Date Info Popup */
+.date-info-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.date-info-popup.show {
+    opacity: 1;
+}
+
+.date-info-popup.show .popup-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.popup-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    cursor: pointer;
+}
+
+.popup-content {
+    position: relative;
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(22, 33, 62, 0.98) 100%);
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 24px;
+    padding: 30px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(102, 126, 234, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: scale(0.8) translateY(-30px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: popupGlow 2s ease-in-out infinite;
+}
+
+@keyframes popupGlow {
+    0%, 100% {
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 40px rgba(102, 126, 234, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    50% {
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 60px rgba(102, 126, 234, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+}
+
+.popup-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 28px;
+    line-height: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.popup-close:hover {
+    background: rgba(239, 68, 68, 0.8);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+.popup-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.popup-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+    animation: popupIconBounce 1s ease-in-out infinite;
+}
+
+@keyframes popupIconBounce {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-10px) scale(1.1);
+    }
+}
+
+.popup-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
+}
+
+.popup-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.info-row:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(102, 126, 234, 0.4);
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.info-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+.info-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    min-width: 100px;
+}
+
+.info-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    flex: 1;
+    text-align: right;
+}
+
+.holiday-row {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(234, 88, 12, 0.15) 100%);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.holiday-row:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(234, 88, 12, 0.25) 100%);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.holiday-name {
+    color: #fbbf24;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .popup-content {
+        padding: 25px 20px;
+        max-width: 95%;
+    }
+    
+    .popup-icon {
+        font-size: 50px;
+    }
+    
+    .popup-title {
+        font-size: 24px;
+    }
+    
+    .info-icon {
+        font-size: 24px;
+    }
+    
+    .info-label {
+        font-size: 14px;
+        min-width: 85px;
+    }
+    
+    .info-value {
+        font-size: 16px;
+    }
+    
+    .popup-close {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+        top: 12px;
+        right: 12px;
+    }
+}
+
 @keyframes gradientShift {
     0% {
         background-position: 0% 50%;
@@ -113,8 +344,8 @@ body {
 }
 
 .calendar-container {
-    max-width: 1200px;
-    margin: 60px auto 30px auto;
+    max-width: 1000px;
+    margin: 40px auto 30px auto;
     padding: 15px;
     background: rgba(0, 0, 0, 0.4);
     border-radius: 15px;
@@ -133,8 +364,8 @@ body {
 }
 
 .calendar-header h1 {
-    font-size: 36px;
-    margin-bottom: 8px;
+    font-size: 30px;
+    margin-bottom: 6px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -143,7 +374,7 @@ body {
 
 .subtitle {
     color: rgba(255, 255, 255, 0.7);
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* Countdown Section */
@@ -167,10 +398,10 @@ body {
     background: linear-gradient(135deg, rgba(255, 107, 107, 0.25), rgba(255, 159, 64, 0.25));
     border: 2px solid rgba(255, 107, 107, 0.4);
     border-radius: 15px;
-    padding: 20px;
+    padding: 15px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
     position: relative;
     overflow: hidden;
@@ -211,7 +442,7 @@ body {
 }
 
 .countdown-icon {
-    font-size: 55px;
+    font-size: 45px;
     animation: bounce 2s ease-in-out infinite;
     filter: drop-shadow(0 4px 8px rgba(255, 107, 107, 0.5));
     transition: all 0.3s ease;
@@ -248,8 +479,8 @@ body {
 }
 
 .countdown-content h3 {
-    font-size: 22px;
-    margin-bottom: 12px;
+    font-size: 18px;
+    margin-bottom: 10px;
     color: #ffb347;
     font-weight: 700;
     text-shadow: 0 2px 10px rgba(255, 179, 71, 0.5);
@@ -267,8 +498,8 @@ body {
 
 .countdown-timer {
     display: flex;
-    gap: 12px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 8px;
 }
 
 .countdown-item {
@@ -276,9 +507,9 @@ body {
     flex-direction: column;
     align-items: center;
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
-    padding: 12px 16px;
+    padding: 10px 12px;
     border-radius: 10px;
-    min-width: 70px;
+    min-width: 60px;
     position: relative;
     border: 2px solid rgba(255, 107, 107, 0.4);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -313,7 +544,7 @@ body {
 }
 
 .countdown-number {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #ff6b6b;
     line-height: 1;
@@ -338,17 +569,17 @@ body {
 }
 
 .countdown-label {
-    font-size: 11px;
+    font-size: 10px;
     color: rgba(255, 255, 255, 0.8);
     text-transform: uppercase;
-    margin-top: 8px;
+    margin-top: 6px;
     letter-spacing: 1.5px;
     font-weight: 600;
 }
 
 .countdown-date {
     color: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
+    font-size: 13px;
     margin: 0;
     font-weight: 500;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -361,13 +592,13 @@ body {
 }
 
 .month-year-display h2 {
-    font-size: 24px;
+    font-size: 20px;
     margin: 0;
     color: #fff;
 }
 
 .lunar-month {
-    font-size: 13px;
+    font-size: 12px;
     color: rgba(255, 255, 255, 0.6);
     margin-top: 4px;
 }
@@ -386,7 +617,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
+    font-size: 12px;
     color: rgba(255, 255, 255, 0.8);
 }
 
@@ -535,17 +766,17 @@ body {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 6px;
     background: rgba(0, 0, 0, 0.2);
-    padding: 15px;
+    padding: 12px;
     border-radius: 15px;
 }
 
 .weekday-header {
     text-align: center;
     font-weight: 700;
-    font-size: 14px;
-    padding: 12px;
+    font-size: 12px;
+    padding: 10px;
     color: rgba(255, 255, 255, 0.9);
     background: rgba(102, 126, 234, 0.2);
     border-radius: 8px;
@@ -562,13 +793,13 @@ body {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    padding: 12px;
+    padding: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    gap: 6px;
+    gap: 5px;
     position: relative;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
@@ -611,14 +842,14 @@ body {
 }
 
 .solar-day {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #fff;
     line-height: 1;
 }
 
 .lunar-day {
-    font-size: 15px;
+    font-size: 13px;
     color: rgba(255, 255, 255, 0.7);
     line-height: 1.2;
     font-weight: 500;
@@ -684,20 +915,20 @@ body {
 }
 
 .holiday-date {
-    font-size: 14px;
+    font-size: 13px;
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 5px;
 }
 
 .holiday-title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: #fff;
     margin-bottom: 5px;
 }
 
 .holiday-type {
-    font-size: 12px;
+    font-size: 11px;
     color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
 }
@@ -711,8 +942,8 @@ body {
 }
 
 .info-section h3 {
-    font-size: 20px;
-    margin-bottom: 12px;
+    font-size: 18px;
+    margin-bottom: 10px;
     color: rgba(255, 255, 255, 0.9);
 }
 
@@ -801,28 +1032,33 @@ body {
     }
 
     .calendar-grid {
-        gap: 4px;
-        padding: 10px;
+        gap: 6px;
+        padding: 12px;
     }
 
     .weekday-header {
         font-size: 12px;
-        padding: 8px 4px;
+        padding: 10px 4px;
     }
 
     .calendar-day {
-        padding: 6px;
-        gap: 4px;
-        min-height: 60px;
+        aspect-ratio: auto;
+        padding: 8px;
+        gap: 5px;
+        min-height: 70px;
+        height: auto;
+        border-radius: 8px;
     }
 
     .solar-day {
-        font-size: 16px;
+        font-size: 22px;
+        font-weight: 700;
         line-height: 1.2;
     }
 
     .lunar-day {
-        font-size: 10px;
+        font-size: 13px;
+        font-weight: 500;
         line-height: 1.2;
     }
 
@@ -926,19 +1162,29 @@ body {
         font-size: 16px;
     }
 
+    .calendar-grid {
+        gap: 5px;
+        padding: 10px;
+    }
+
     .calendar-day {
-        padding: 4px;
-        gap: 3px;
-        min-height: 55px;
+        aspect-ratio: auto;
+        padding: 6px;
+        gap: 4px;
+        min-height: 65px;
+        height: auto;
+        border-radius: 8px;
     }
 
     .solar-day {
-        font-size: 14px;
+        font-size: 20px;
+        font-weight: 700;
         line-height: 1.2;
     }
 
     .lunar-day {
-        font-size: 9px;
+        font-size: 12px;
+        font-weight: 500;
         line-height: 1.2;
     }
 
