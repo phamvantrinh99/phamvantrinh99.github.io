@@ -52,8 +52,20 @@
                 <p>Drag & Drop images here</p>
                 <p class="upload-or">or</p>
                 <button class="btn-primary" id="select-files-btn">Select Files</button>
-                <input type="file" id="file-input" multiple accept="image/*,image/heic,image/heif" capture="environment" hidden>
+                <input type="file" id="file-input" multiple accept="image/*,image/heic,image/heif" hidden>
             </div>
+            <!-- Preview Section -->
+            <div class="preview-section" id="preview-section" style="display: none;">
+                <h3 class="preview-title">📸 Preview (<span id="preview-count">0</span> images selected)</h3>
+                <div class="preview-grid" id="preview-grid">
+                    <!-- Preview images will be shown here -->
+                </div>
+                <div class="preview-actions">
+                    <button class="btn-danger" id="cancel-upload-btn">❌ Cancel</button>
+                    <button class="btn-success" id="confirm-upload-btn">✅ Upload All</button>
+                </div>
+            </div>
+            
             <div class="upload-progress" id="upload-progress" style="display: none;">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progress-fill"></div>

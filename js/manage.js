@@ -9,6 +9,7 @@
     // DOM Elements
     let hamburgerMenu, navMenu, navOverlay, closeMenuBtn;
     let uploadArea, fileInput, selectFilesBtn;
+    let previewSection, previewGrid, previewCount, cancelUploadBtn, confirmUploadBtn;
     let uploadProgress, progressFill, progressText;
     let loading, imagesGrid, emptyState, imageCount;
     let searchInput, refreshBtn;
@@ -19,6 +20,7 @@
     let allImages = [];
     let filteredImages = [];
     let imageToDelete = null;
+    let filesToUpload = [];
 
     /**
      * Initialize the application
@@ -53,6 +55,11 @@
         uploadArea = document.getElementById('upload-area');
         fileInput = document.getElementById('file-input');
         selectFilesBtn = document.getElementById('select-files-btn');
+        previewSection = document.getElementById('preview-section');
+        previewGrid = document.getElementById('preview-grid');
+        previewCount = document.getElementById('preview-count');
+        cancelUploadBtn = document.getElementById('cancel-upload-btn');
+        confirmUploadBtn = document.getElementById('confirm-upload-btn');
         uploadProgress = document.getElementById('upload-progress');
         progressFill = document.getElementById('progress-fill');
         progressText = document.getElementById('progress-text');
@@ -102,6 +109,10 @@
         uploadArea.addEventListener('dragover', handleDragOver);
         uploadArea.addEventListener('dragleave', handleDragLeave);
         uploadArea.addEventListener('drop', handleDrop);
+        
+        // Preview actions
+        cancelUploadBtn.addEventListener('click', cancelUpload);
+        confirmUploadBtn.addEventListener('click', confirmUpload);
 
         // Search and refresh
         searchInput.addEventListener('input', handleSearch);
@@ -274,8 +285,130 @@
     function handleFileSelect(e) {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
-            uploadFiles(files);
+            showPreview(files);
         }
+        // Reset file input
+        e.target.value = '';
+    }
+    
+    /**
+     * Show preview of selected files
+     */
+    function showPreview(files) {
+        filesToUpload = files;
+        previewGrid.innerHTML = '';
+        previewCount.textContent = files.length;
+        
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.innerHTML = `
+                    <img src="${e.target.result}" alt="${file.name}">
+                    <button class="preview-item-remove" data-index="${index}">×</button>
+                    <div class="preview-item-name">${file.name}</div>
+                `;
+                
+                // Add click to view full size
+                const img = previewItem.querySelector('img');
+                img.addEventListener('click', () => {
+                    viewPreviewImage(e.target.result, file.name);
+                });
+                
+                // Add remove button listener
+                const removeBtn = previewItem.querySelector('.preview-item-remove');
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removePreviewItem(index);
+                });
+                
+                previewGrid.appendChild(previewItem);
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Show preview section, hide upload area
+        uploadArea.style.display = 'none';
+        previewSection.style.display = 'flex';
+    }
+    
+    /**
+     * View preview image in modal
+     */
+    function viewPreviewImage(src, name) {
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'preview-modal';
+        modal.innerHTML = `
+            <div class="preview-modal-content">
+                <button class="preview-modal-close">×</button>
+                <img src="${src}" alt="${name}">
+                <div class="preview-modal-name">${name}</div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Add close listeners
+        const closeBtn = modal.querySelector('.preview-modal-close');
+        closeBtn.addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
+        
+        // Close on ESC key
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+        
+        // Show modal
+        setTimeout(() => modal.classList.add('show'), 10);
+    }
+    
+    /**
+     * Remove item from preview
+     */
+    function removePreviewItem(index) {
+        filesToUpload = filesToUpload.filter((_, i) => i !== index);
+        
+        if (filesToUpload.length === 0) {
+            cancelUpload();
+        } else {
+            showPreview(filesToUpload);
+        }
+    }
+    
+    /**
+     * Cancel upload
+     */
+    function cancelUpload() {
+        filesToUpload = [];
+        previewGrid.innerHTML = '';
+        previewSection.style.display = 'none';
+        uploadArea.style.display = 'block';
+        fileInput.value = '';
+    }
+    
+    /**
+     * Confirm and start upload
+     */
+    async function confirmUpload() {
+        if (filesToUpload.length === 0) return;
+        
+        // Hide preview, show progress
+        previewSection.style.display = 'none';
+        uploadProgress.style.display = 'block';
+        
+        await uploadFiles(filesToUpload);
+        
+        // Reset
+        filesToUpload = [];
+        uploadArea.style.display = 'block';
     }
 
     /**
@@ -307,7 +440,7 @@
         );
 
         if (files.length > 0) {
-            uploadFiles(files);
+            showPreview(files);
         } else {
             showError('Please drop image files only.');
         }
