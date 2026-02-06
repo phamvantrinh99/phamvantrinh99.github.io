@@ -98,10 +98,10 @@ const Gallery3D = (() => {
         window.addEventListener('click', onMouseClick);
         window.addEventListener('mousemove', onMouseMove);
         
-        // Touch events for mobile
-        window.addEventListener('touchstart', onTouchStart, { passive: true });
-        window.addEventListener('touchend', onTouchEnd, { passive: true });
-        window.addEventListener('touchmove', onTouchMove, { passive: true });
+        // Touch events for mobile - attach to renderer's DOM element
+        renderer.domElement.addEventListener('touchstart', onTouchStart, { passive: true });
+        renderer.domElement.addEventListener('touchend', onTouchEnd, { passive: false });
+        renderer.domElement.addEventListener('touchmove', onTouchMove, { passive: true });
         
         console.log('✓ Three.js scene initialized');
     }
@@ -922,14 +922,9 @@ const Gallery3D = (() => {
      */
     let touchStartTime = 0;
     let touchStartPos = { x: 0, y: 0 };
+    let isTouchDragging = false;
     
     function onTouchEnd(event) {
-        // Check if touch is on UI controls
-        const uiControls = document.getElementById('ui-controls');
-        if (uiControls && event.target && uiControls.contains(event.target)) {
-            return;
-        }
-        
         // Calculate touch duration and distance
         const touchEndTime = Date.now();
         const touchDuration = touchEndTime - touchStartTime;
@@ -945,14 +940,22 @@ const Gallery3D = (() => {
             Math.pow(touchEndPos.y - touchStartPos.y, 2)
         );
         
-        // Only trigger if it's a tap (short duration, small distance)
-        if (touchDuration < 300 && distance < 10) {
+        console.log('📱 Touch end - Duration:', touchDuration, 'Distance:', distance, 'Dragging:', isTouchDragging);
+        
+        // Only trigger if it's a tap (short duration, small distance, not dragging)
+        if (touchDuration < 400 && distance < 15 && !isTouchDragging) {
+            // Prevent default to stop any other handlers
+            event.preventDefault();
+            event.stopPropagation();
+            
             // Get touch position
             mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
             
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(imageMeshes, true);
+            
+            console.log('📱 Raycaster intersects:', intersects.length);
             
             if (intersects.length > 0) {
                 // Get the parent group
@@ -965,7 +968,7 @@ const Gallery3D = (() => {
                     const imageData = clickedObject.userData.imageData;
                     const imageIndex = clickedObject.userData.imageIndex;
                     
-                    console.log('📱 Touch detected on image:', imageData.name);
+                    console.log('✅ Touch detected on image:', imageData.name);
                     
                     // Trigger event for modal
                     window.dispatchEvent(new CustomEvent('imageClicked', {
@@ -974,6 +977,9 @@ const Gallery3D = (() => {
                 }
             }
         }
+        
+        // Reset dragging flag
+        isTouchDragging = false;
     }
     
     /**
@@ -986,42 +992,24 @@ const Gallery3D = (() => {
             x: touch.clientX,
             y: touch.clientY
         };
+        isTouchDragging = false;
+        
+        console.log('📱 Touch start at:', touchStartPos);
     }
     
     /**
      * Handle touch move (mobile hover effect)
      */
     function onTouchMove(event) {
-        // Check if touch is on UI controls
-        const uiControls = document.getElementById('ui-controls');
-        if (uiControls && event.target && uiControls.contains(event.target)) {
-            if (hoveredMesh) {
-                hoveredMesh = null;
-            }
-            return;
-        }
-        
-        // Get touch position
+        // Mark as dragging if moved
         const touch = event.touches[0];
-        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+        const distance = Math.sqrt(
+            Math.pow(touch.clientX - touchStartPos.x, 2) + 
+            Math.pow(touch.clientY - touchStartPos.y, 2)
+        );
         
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(imageMeshes, true);
-        
-        if (intersects.length > 0) {
-            let newHovered = intersects[0].object;
-            while (newHovered.parent && !newHovered.userData.isImageMesh) {
-                newHovered = newHovered.parent;
-            }
-            
-            if (newHovered !== hoveredMesh && newHovered.userData.isImageMesh) {
-                hoveredMesh = newHovered;
-            }
-        } else {
-            if (hoveredMesh) {
-                hoveredMesh = null;
-            }
+        if (distance > 10) {
+            isTouchDragging = true;
         }
     }
     
