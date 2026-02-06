@@ -88,9 +88,17 @@
         navOverlay.addEventListener('click', closeMenu);
 
         // Upload
-        selectFilesBtn.addEventListener('click', () => fileInput.click());
+        selectFilesBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event bubbling to uploadArea
+            fileInput.click();
+        });
         fileInput.addEventListener('change', handleFileSelect);
-        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('click', (e) => {
+            // Only trigger if clicking on the upload area itself, not the button
+            if (e.target === uploadArea || e.target.closest('.upload-icon, .upload-or, p')) {
+                fileInput.click();
+            }
+        });
         uploadArea.addEventListener('dragover', handleDragOver);
         uploadArea.addEventListener('dragleave', handleDragLeave);
         uploadArea.addEventListener('drop', handleDrop);

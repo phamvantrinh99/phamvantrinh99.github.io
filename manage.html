@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Image Management - 3D Photo Gallery</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/manage.css">
@@ -50,7 +52,7 @@
                 <p>Drag & Drop images here</p>
                 <p class="upload-or">or</p>
                 <button class="btn-primary" id="select-files-btn">Select Files</button>
-                <input type="file" id="file-input" multiple accept="image/*" hidden>
+                <input type="file" id="file-input" multiple accept="image/*,image/heic,image/heif" capture="environment" hidden>
             </div>
             <div class="upload-progress" id="upload-progress" style="display: none;">
                 <div class="progress-bar">
