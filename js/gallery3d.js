@@ -99,8 +99,9 @@ const Gallery3D = (() => {
         window.addEventListener('mousemove', onMouseMove);
         
         // Touch events for mobile
-        window.addEventListener('touchend', onTouchEnd);
-        window.addEventListener('touchmove', onTouchMove);
+        window.addEventListener('touchstart', onTouchStart, { passive: true });
+        window.addEventListener('touchend', onTouchEnd, { passive: true });
+        window.addEventListener('touchmove', onTouchMove, { passive: true });
         
         console.log('✓ Three.js scene initialized');
     }
@@ -919,6 +920,9 @@ const Gallery3D = (() => {
     /**
      * Handle touch end (mobile tap)
      */
+    let touchStartTime = 0;
+    let touchStartPos = { x: 0, y: 0 };
+    
     function onTouchEnd(event) {
         // Check if touch is on UI controls
         const uiControls = document.getElementById('ui-controls');
@@ -926,36 +930,62 @@ const Gallery3D = (() => {
             return;
         }
         
-        // Prevent default and stop propagation
-        if (event.cancelable) {
-            event.preventDefault();
-        }
+        // Calculate touch duration and distance
+        const touchEndTime = Date.now();
+        const touchDuration = touchEndTime - touchStartTime;
         
-        // Get touch position
         const touch = event.changedTouches[0];
-        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+        const touchEndPos = {
+            x: touch.clientX,
+            y: touch.clientY
+        };
         
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(imageMeshes, true);
+        const distance = Math.sqrt(
+            Math.pow(touchEndPos.x - touchStartPos.x, 2) + 
+            Math.pow(touchEndPos.y - touchStartPos.y, 2)
+        );
         
-        if (intersects.length > 0) {
-            // Get the parent group
-            let clickedObject = intersects[0].object;
-            while (clickedObject.parent && !clickedObject.userData.isImageMesh) {
-                clickedObject = clickedObject.parent;
-            }
+        // Only trigger if it's a tap (short duration, small distance)
+        if (touchDuration < 300 && distance < 10) {
+            // Get touch position
+            mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
             
-            if (clickedObject.userData.isImageMesh) {
-                const imageData = clickedObject.userData.imageData;
-                const imageIndex = clickedObject.userData.imageIndex;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(imageMeshes, true);
+            
+            if (intersects.length > 0) {
+                // Get the parent group
+                let clickedObject = intersects[0].object;
+                while (clickedObject.parent && !clickedObject.userData.isImageMesh) {
+                    clickedObject = clickedObject.parent;
+                }
                 
-                // Trigger event for modal
-                window.dispatchEvent(new CustomEvent('imageClicked', {
-                    detail: { imageData, imageIndex }
-                }));
+                if (clickedObject.userData.isImageMesh) {
+                    const imageData = clickedObject.userData.imageData;
+                    const imageIndex = clickedObject.userData.imageIndex;
+                    
+                    console.log('📱 Touch detected on image:', imageData.name);
+                    
+                    // Trigger event for modal
+                    window.dispatchEvent(new CustomEvent('imageClicked', {
+                        detail: { imageData, imageIndex }
+                    }));
+                }
             }
         }
+    }
+    
+    /**
+     * Handle touch start
+     */
+    function onTouchStart(event) {
+        touchStartTime = Date.now();
+        const touch = event.touches[0];
+        touchStartPos = {
+            x: touch.clientX,
+            y: touch.clientY
+        };
     }
     
     /**
