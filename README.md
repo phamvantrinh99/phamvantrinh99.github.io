@@ -1,6 +1,6 @@
-# 3D Photo Gallery from Cloudinary
+# 3D Photo Gallery & Vietnamese Calendar
 
-Website hiển thị ảnh từ Cloudinary dưới dạng 3D gallery với Three.js, host trên GitHub Pages.
+Website đa chức năng với 3D photo gallery, quản lý ảnh, và lịch Việt Nam, host trên GitHub Pages.
 
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![Three.js](https://img.shields.io/badge/Three.js-r128-blue)
@@ -11,12 +11,62 @@ Website hiển thị ảnh từ Cloudinary dưới dạng 3D gallery với Three
 
 ## 🎯 Tính năng
 
-- ✨ **3D Gallery**: Hiển thị ảnh trong không gian 3D
+### 📸 3D Photo Gallery
+- ✨ **3D Gallery**: Hiển thị ảnh trong không gian 3D với Three.js
 - ☁️ **Cloudinary CDN**: Load ảnh nhanh, không CORS
-- 🎨 **3 Layouts**: Grid, Circle, Spiral
-- 🖱️ **Interactive**: Xoay, zoom, click
-- 📱 **Responsive**: Mobile-friendly
+- 🎨 **Multiple Layouts**: Sphere, Grid, Wave, Helix, DNA
+- 🖱️ **Interactive**: Xoay, zoom, click để xem full size
+- 📱 **Mobile Support**: Touch-friendly, responsive design
 - ⚡ **Auto Optimization**: Cloudinary tự động optimize ảnh
+
+### 🗓️ Vietnamese Calendar
+- 📅 **Dual Calendar**: Hiển thị cả dương lịch và âm lịch
+- 🎊 **Holiday Marking**: Tự động đánh dấu ngày lễ Việt Nam
+- 🐉 **Zodiac Info**: Hiển thị Can Chi và con giáp
+- ⏰ **Tet Countdown**: Đếm ngược đến Tết Nguyên Đán
+- ✨ **Beautiful UI**: Gradient, animations, particle effects
+- 📱 **Responsive**: Tối ưu cho cả desktop và mobile
+
+### 🎛️ Image Management
+- 📤 **Easy Upload**: Drag & drop hoặc click để upload
+- 👁️ **Preview**: Xem trước ảnh trước khi upload
+- 🗑️ **Delete**: Xóa ảnh không cần thiết
+- 📋 **Grid View**: Xem tất cả ảnh dạng lưới
+- 📱 **Mobile Friendly**: Upload từ camera hoặc thư viện
+
+### 🔊 Voice Explorer
+- 🎤 **Voice List**: Xem tất cả voices có sẵn trên thiết bị
+- 🔍 **Filter**: Lọc theo ngôn ngữ
+- 📊 **Export**: Export danh sách ra Excel (CSV/XLSX)
+- 🌍 **Language Names**: Hiển thị tên ngôn ngữ bằng tiếng Việt
+
+---
+
+## 🧭 Navigation
+
+Website có 4 trang chính:
+
+1. **🏠 Home (index.html)**: 3D Photo Gallery
+   - Xem ảnh trong không gian 3D
+   - Multiple layouts và effects
+   - Touch-friendly controls
+
+2. **🗓️ Calendar (calendar.html)**: Vietnamese Calendar
+   - Lịch Việt Nam với âm dương
+   - Đánh dấu ngày lễ
+   - Countdown đến Tết
+
+3. **🎛️ Manage (manage.html)**: Image Management
+   - Upload ảnh lên Cloudinary
+   - Preview và delete
+   - Drag & drop support
+
+4. **🔊 Voices (voices.html)**: Voice Explorer
+   - Xem danh sách voices
+   - Filter theo ngôn ngữ
+   - Export ra Excel
+
+Sử dụng menu hamburger (☰) ở góc trên bên trái để di chuyển giữa các trang.
 
 ---
 
@@ -72,18 +122,34 @@ Enable GitHub Pages: Settings > Pages > Source: main
 
 ## 🎮 Cách dùng
 
-### Controls
+### 📸 3D Gallery Controls
 - 🖱️ **Drag**: Xoay camera
 - 🔍 **Scroll**: Zoom in/out
-- 👆 **Click**: Xem ảnh full size
+- 👆 **Click/Tap**: Xem ảnh full size
 - ⌨️ **Arrow keys**: Navigate ảnh
 - ⌨️ **ESC**: Đóng modal
-- 🔽 **Toggle button**: Ẩn/hiện panel
+- 🔄 **Auto Rotate**: Tự động xoay gallery và từng ảnh
 
-### Layouts
-- **Grid**: Lưới 5 cột
-- **Circle**: Vòng tròn
-- **Spiral**: Xoắn ốc
+### 🎨 Gallery Layouts
+- **Sphere**: Hình cầu 3D
+- **Grid**: Lưới vuông
+- **Wave**: Sóng lượn
+- **Helix**: Xoắn ốc kép
+- **DNA**: Chuỗi xoắn kép
+
+### 🗓️ Calendar Features
+- 📅 **Click vào ngày**: Xem thông tin chi tiết (dương lịch, âm lịch, Can Chi)
+- ◀️ **Previous/Next**: Chuyển tháng
+- 📍 **Today**: Nhảy về tháng hiện tại
+- 🎊 **Holiday Icons**: Emoji đánh dấu ngày lễ
+- ⏰ **Live Countdown**: Đếm ngược thời gian thực đến Tết
+
+### 🎛️ Image Management
+- 📤 **Upload**: Drag & drop hoặc click "Select Files"
+- 👁️ **Preview**: Xem trước và xóa ảnh không mong muốn
+- ✅ **Confirm**: Click "Upload All" để upload
+- 🗑️ **Delete**: Click nút X trên mỗi ảnh để xóa
+- 🔍 **View**: Click vào ảnh trong preview để xem full size
 
 ---
 
@@ -113,35 +179,80 @@ Enable GitHub Pages: Settings > Pages > Source: main
 
 ## 📸 Supported Formats
 
-### ✅ Được hỗ trợ:
-- JPG/JPEG (khuyến nghị)
-- PNG
-- GIF
-- WebP
-- BMP
+### ✅ Image Formats
+**Gallery & Upload:**
+- JPG/JPEG (khuyến nghị - best compatibility)
+- PNG (supports transparency)
+- GIF (animated supported)
+- WebP (modern format, smaller size)
+- BMP (basic format)
+- HEIC/HEIF (Apple format - auto converted by Cloudinary)
 
-### ❌ Không hỗ trợ:
-- HEIC/HEIF (Apple format)
-- RAW formats
+### 📊 Export Formats
+**Voice List Export:**
+- CSV (Excel compatible)
+- XLSX (Advanced Excel format with SheetJS)
 
-**Convert HEIC:** https://heictojpg.com/
+### ❌ Không hỗ trợ
+- RAW formats (CR2, NEF, ARW, etc.)
+- TIFF (too large for web)
+
+**Tip:** Cloudinary tự động convert và optimize mọi format về WebP/JPEG tùy browser!
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Ảnh không hiển thị?
+### 📸 Gallery Issues
+
+**Ảnh không hiển thị?**
 1. ✅ Kiểm tra Cloud Name đúng chưa
 2. ✅ Kiểm tra Folder Name đúng chưa
 3. ✅ Mở Console (F12) xem lỗi gì
 
-### Không chạy được local?
+**Không click được ảnh trên mobile?**
+1. ✅ Đảm bảo đã cập nhật code mới nhất
+2. ✅ Touch events đã được implement
+
+**Muốn thêm ảnh mới?**
+1. Upload vào Cloudinary folder hoặc dùng trang Manage
+2. Reload trang - tự động hiện!
+
+### 🗓️ Calendar Issues
+
+**Ngày lễ không hiển thị?**
+1. ✅ Kiểm tra file `js/calendar.js` có danh sách holidays
+2. ✅ Reload trang để cập nhật
+
+**Popup không đóng được?**
+1. ✅ Click vào nút X hoặc click ra ngoài popup
+2. ✅ Đảm bảo JavaScript không bị lỗi (F12 Console)
+
+### 🎛️ Upload Issues
+
+**Không upload được trên iPhone?**
+1. ✅ Đảm bảo file input không có `capture="environment"`
+2. ✅ Chọn "Photo Library" thay vì "Take Photo"
+
+**Upload bị duplicate file picker?**
+1. ✅ Đã fix: event propagation được xử lý đúng
+
+### 🔊 Voice Issues
+
+**Không có voices?**
+1. ✅ Đợi vài giây để browser load voices
+2. ✅ Thử reload trang
+3. ✅ Một số browser có ít voices hơn
+
+### 🌐 General Issues
+
+**Không chạy được local?**
 1. ✅ Phải chạy qua HTTP server (không mở trực tiếp HTML)
 2. ✅ Dùng `python -m http.server` hoặc `npx http-server`
 
-### Muốn thêm ảnh mới?
-1. Upload vào Cloudinary folder
-2. Reload trang - tự động hiện!
+**Lỗi CORS?**
+1. ✅ Cloudinary không có CORS issues
+2. ✅ Đảm bảo chạy qua HTTP server khi test local
 
 ---
 
@@ -149,47 +260,103 @@ Enable GitHub Pages: Settings > Pages > Source: main
 
 ```
 phamvantrinh99.github.io/
-├── index.html              # Main HTML
+├── index.html              # 3D Gallery page
+├── calendar.html           # Vietnamese Calendar page
+├── manage.html             # Image Management page
+├── voices.html             # Voice Explorer page
 ├── css/
-│   └── style.css          # Styles + animations
+│   ├── style.css          # Main styles
+│   ├── calendar.css       # Calendar styles
+│   ├── manage.css         # Management styles
+│   └── voices.css         # Voice explorer styles
 ├── js/
-│   ├── config.js          # Configuration
-│   ├── cloudinary.js      # Cloudinary integration
-│   ├── gallery3d.js       # Three.js engine
-│   └── main.js            # Main app logic
+│   ├── config.js          # Cloudinary configuration
+│   ├── cloudinary.js      # Cloudinary API integration
+│   ├── gallery3d.js       # Three.js 3D engine
+│   ├── main.js            # Gallery app logic
+│   ├── calendar.js        # Calendar logic
+│   ├── lunar.js           # Lunar calendar conversion
+│   ├── particles-calendar.js  # Particle effects
+│   ├── manage.js          # Image management logic
+│   └── voices.js          # Voice explorer logic
 ├── README.md              # This file
-└── TECHNICAL.md           # Technical docs
+└── TECHNICAL.md           # Technical documentation
 ```
 
 ---
 
 ## 🛠️ Công nghệ
 
-- **Three.js r128**: 3D rendering
-- **OrbitControls**: Camera controls
-- **Cloudinary CDN**: Image hosting & optimization
-- **Vanilla JavaScript**: No frameworks
+### Core Technologies
+- **Three.js r128**: 3D rendering engine
+- **OrbitControls**: Camera interaction
+- **Cloudinary API**: Image hosting & CDN
+- **Web Speech API**: Voice synthesis
+- **Vanilla JavaScript**: No frameworks needed
 - **GitHub Pages**: Free hosting
+
+### Calendar Features
+- **Lunar Calendar Algorithm**: Ho Ngoc Duc's algorithm
+- **CSS Animations**: Smooth transitions & effects
+- **Particle System**: Custom CSS/JS particle effects
+- **Responsive Design**: Mobile-first approach
+
+### Libraries Used
+- **SheetJS (xlsx)**: Excel export functionality
+- **Intl.DisplayNames**: Language name localization
 
 ---
 
-## 🎨 Cloudinary Features
+## 🎨 Feature Highlights
 
-### Auto Optimization
-Ảnh tự động được optimize:
+### 🗓️ Vietnamese Calendar Features
+
+**Dual Calendar System:**
+- Hiển thị đồng thời dương lịch và âm lịch
+- Tự động convert chính xác theo thuật toán Ho Ngoc Duc
+- Hiển thị Can Chi (Giáp Tý, Ất Sửu, etc.)
+- Hiển thị con giáp (Tý, Sửu, Dần, etc.)
+
+**Vietnamese Holidays:**
+- **Solar Holidays**: Tết Dương lịch, 30/4, 2/9, Giáng sinh, etc.
+- **Lunar Holidays**: Tết Nguyên Đán, Tết Trung Thu, Vu Lan, etc.
+- **Special Days**: Giỗ Tổ Hùng Vương, Phật Đản, etc.
+
+**Interactive Features:**
+- Click vào ngày để xem popup thông tin chi tiết
+- Countdown đến Tết với animation đẹp mắt
+- Particle effects bay lượn trên background
+- Responsive design cho mobile và desktop
+
+**UI/UX:**
+- Glass-morphism design
+- Smooth animations và transitions
+- Color-coded days (today, weekend, holiday)
+- Icon indicators cho ngày lễ
+
+### ☁️ Cloudinary Features
+
+**Auto Optimization:**
 ```
 w_800,q_auto,f_auto  → Width 800px, quality auto, format auto
 ```
 
-### On-the-fly Transformations
+**On-the-fly Transformations:**
 ```
 /w_500,h_500,c_fill/  → Crop to 500x500
 /e_blur:300/          → Blur effect
 /e_grayscale/         → Grayscale
 ```
 
-### Responsive Images
+**Responsive Images:**
 Cloudinary tự động chọn format tốt nhất (WebP cho Chrome, JPEG cho Safari)
+
+**Upload Features:**
+- Drag & drop support
+- Preview before upload
+- Individual image removal
+- Progress tracking
+- Error handling
 
 ---
 
@@ -211,4 +378,48 @@ Có vấn đề? Tạo [Issue](https://github.com/phamvantrinh99/phamvantrinh99.
 
 ---
 
+## 🎯 Roadmap
+
+### Planned Features
+- [ ] Weather integration
+- [ ] Photo filters and effects
+- [ ] Calendar event creation
+- [ ] Social sharing
+- [ ] Dark/Light theme toggle
+- [ ] Multi-language support
+
+### Recently Added ✅
+- [x] Vietnamese Calendar with lunar dates
+- [x] Holiday marking system
+- [x] Tet countdown
+- [x] Image upload with preview
+- [x] Voice explorer with export
+- [x] Mobile touch support
+- [x] Particle effects
+- [x] Multiple 3D layouts
+
+---
+
+## 🌟 Credits
+
+- **Three.js**: 3D rendering library
+- **Cloudinary**: Image hosting and CDN
+- **Ho Ngoc Duc**: Lunar calendar algorithm
+- **SheetJS**: Excel export functionality
+
+---
+
+## 📊 Stats
+
+- **Total Pages**: 4 (Gallery, Calendar, Manage, Voices)
+- **Supported Languages**: Vietnamese, English
+- **Image Formats**: 6+ formats
+- **3D Layouts**: 5 layouts
+- **Holidays**: 15+ Vietnamese holidays
+- **Free Tier**: 25GB storage, 25GB bandwidth/month
+
+---
+
 **Made with ❤️ by phamvantrinh99**
+
+**Live Demo**: [https://phamvantrinh99.github.io](https://phamvantrinh99.github.io)
