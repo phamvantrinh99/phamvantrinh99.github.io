@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>Plinko Game - Random Picker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/plinko.css">
+</head>
+<body>
+    <!-- Particles Background -->
+    <div class="particles-container" id="particles-container"></div>
+
+    <!-- Hamburger Menu -->
+    <button id="hamburger-menu" class="hamburger-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Navigation Menu -->
+    <nav id="nav-menu" class="nav-menu">
+        <div class="nav-header">
+            <h2>Menu</h2>
+            <button id="close-menu" class="close-menu">&times;</button>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">🏠 Gallery</a></li>
+            <li><a href="manage.html">⚙️ Manage Images</a></li>
+            <li><a href="voices.html">🎤 Voice Synthesis</a></li>
+            <li><a href="calendar.html">📅 Calendar</a></li>
+            <li><a href="plinko.html" class="active">🎯 Plinko Game</a></li>
+        </ul>
+    </nav>
+
+    <!-- Navigation Overlay -->
+    <div id="nav-overlay" class="nav-overlay"></div>
+
+    <!-- Main Container -->
+    <div class="plinko-container">
+        <!-- Setup Screen -->
+        <div class="setup-screen" id="setup-screen">
+            <div class="setup-content">
+                <h1 class="game-title">🎯 PLINKO</h1>
+                <p class="game-subtitle">Drop the ball and let fate decide!</p>
+                
+                <div class="setup-form">
+                    <label for="names-input">Enter player names (one per line):</label>
+                    <textarea 
+                        id="names-input" 
+                        placeholder="Player 1&#10;Player 2&#10;Player 3&#10;Player 4&#10;Player 5"
+                        rows="8"
+                    ></textarea>
+                
+                <div class="game-settings">
+                    <div class="setting-group">
+                        <label for="rows-select">Rows (Số dòng):</label>
+                        <select id="rows-select" class="setting-select">
+                            <option value="8">8 rows</option>
+                            <option value="12">12 rows</option>
+                            <option value="16" selected>16 rows</option>
+                            <option value="20">20 rows</option>
+                            <option value="24">24 rows</option>
+                            <option value="28">28 rows</option>
+                            <option value="32">32 rows</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group slider-group">
+                        <label for="speed-slider">Ball Speed: <span id="speed-value">1.0x</span></label>
+                        <input type="range" id="speed-slider" min="0.5" max="2" value="1" step="0.1">
+                    </div>
+                    
+                    <div class="setting-group slider-group">
+                        <label for="scroll-speed-slider">Card Scroll: <span id="scroll-speed-value">0.5x</span></label>
+                        <input type="range" id="scroll-speed-slider" min="0" max="2" value="0.5" step="0.1">
+                    </div>
+                </div>
+                
+                <button class="start-btn" id="start-btn">
+                    <span>START GAME</span>
+                </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="game-screen">
+            <!-- Canvas -->
+            <canvas id="plinko-canvas"></canvas>
+            
+            <!-- Game Controls -->
+            <div class="game-controls">
+                <button class="control-btn drop-btn" id="drop-btn">
+                    <span class="btn-icon">⬇️</span>
+                    <span class="btn-text">DROP</span>
+                </button>
+                <button class="control-btn reset-btn" id="reset-btn">
+                    <span class="btn-icon">🔄</span>
+                    <span class="btn-text">RESET</span>
+                </button>
+                <button class="control-btn new-game-btn" id="new-game-btn">
+                    <span class="btn-icon">🎮</span>
+                    <span class="btn-text">NEW GAME</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Winner Overlay -->
+        <div class="winner-overlay" id="winner-overlay">
+            <div class="winner-content">
+                <button class="winner-close-btn" id="winner-close-btn">✕</button>
+                <div class="trophy-animation">🏆</div>
+                <h2 class="winner-title">WINNER!</h2>
+                <div class="winner-name" id="winner-name">Player Name</div>
+                <div class="confetti"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Matter.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="js/particles-plinko.js"></script>
+    <script src="js/plinko.js"></script>
+</body>
+</html>
