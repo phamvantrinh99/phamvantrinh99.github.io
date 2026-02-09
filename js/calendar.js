@@ -29,6 +29,7 @@
         '03-08': { name: 'Quốc tế Phụ nữ', icon: '👩' },
         '04-30': { name: 'Giải phóng miền Nam', icon: '🇻🇳' },
         '05-01': { name: 'Quốc tế Lao động', icon: '⚒️' },
+        '05-27': { name: 'Sinh nhật người yêu', icon: '🎂' },
         '06-01': { name: 'Quốc tế Thiếu nhi', icon: '👶' },
         '09-02': { name: 'Quốc khánh', icon: '🇻🇳' },
         '10-20': { name: 'Ngày Phụ nữ VN', icon: '👩' },
