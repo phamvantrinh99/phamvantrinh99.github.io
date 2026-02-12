@@ -200,9 +200,13 @@ body {
     border-color: rgba(239, 68, 68, 0.5);
 }
 
-.holiday-name {
+.holiday-row .holiday-name {
     color: #fbbf24;
+    font-size: 18px;
+    font-weight: 600;
     text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    flex: 1;
+    text-align: right;
 }
 
 /* Responsive */
@@ -230,6 +234,10 @@ body {
     }
     
     .info-value {
+        font-size: 16px;
+    }
+    
+    .holiday-row .holiday-name {
         font-size: 16px;
     }
     
