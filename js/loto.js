@@ -83,7 +83,6 @@ const elements = {
 
 // ===== INITIALIZATION =====
 function init() {
-    console.log('🎰 Lô Tô Digital initialized');
     setupEventListeners();
     initParticles();
     loadSavedGame();
@@ -162,234 +161,8 @@ function processFile(file) {
         elements.uploadArea.style.display = 'none';
         elements.imagePreview.style.display = 'block';
         elements.scanBtn.style.display = 'block';
-        console.log('✅ Image uploaded successfully');
     };
     reader.readAsDataURL(file);
-}
-
-// ===== SMART LOTO CARD PRE-PROCESSING =====
-// Strategy: Detect WHITE cells (with numbers) and isolate them
-function preprocessImage(imageElement, debug = false) {
-    return new Promise((resolve) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Set canvas size to match image
-        const width = imageElement.naturalWidth || imageElement.width;
-        const height = imageElement.naturalHeight || imageElement.height;
-        canvas.width = width;
-        canvas.height = height;
-        
-        // Draw original image
-        ctx.drawImage(imageElement, 0, 0);
-        
-        // Get image data
-        let imageData = ctx.getImageData(0, 0, width, height);
-        let data = imageData.data;
-        
-        // Step 1: Detect WHITE cells (where numbers are)
-        console.log('📸 Step 1: Detecting white cells with numbers...');
-        
-        // Create a mask: WHITE cells = keep, COLORED cells = remove
-        const mask = new Uint8Array(width * height);
-        let whitePixelCount = 0;
-        let coloredPixelCount = 0;
-        
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            
-            // Check if pixel is "white-ish" (bright and not too colorful)
-            const brightness = (r + g + b) / 3;
-            const colorVariance = Math.abs(r - g) + Math.abs(g - b) + Math.abs(b - r);
-            
-            // RELAXED threshold for white cells
-            // White cells: brightness > 180 OR (brightness > 120 AND low color variance)
-            const isWhiteCell = brightness > 180 || (brightness > 120 && colorVariance < 80);
-            
-            mask[i / 4] = isWhiteCell ? 1 : 0;
-            
-            if (isWhiteCell) whitePixelCount++;
-            else coloredPixelCount++;
-        }
-        
-        console.log(`✅ White pixels: ${whitePixelCount}, Colored pixels: ${coloredPixelCount}`);
-        
-        // Step 2: Create clean image - WHITE background, BLACK text
-        console.log('🎨 Step 2: Creating clean image...');
-        
-        for (let i = 0; i < data.length; i += 4) {
-            const pixelIndex = i / 4;
-            
-            if (mask[pixelIndex] === 1) {
-                // White cell - convert to grayscale and enhance
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                
-                // Grayscale
-                const gray = r * 0.299 + g * 0.587 + b * 0.114;
-                
-                // If pixel is VERY dark (number text), make it BLACK
-                // If pixel is bright (background), make it WHITE
-                const threshold = 80; // Lower threshold to catch darker numbers
-                const value = gray < threshold ? 0 : 255;
-                
-                data[i] = data[i + 1] = data[i + 2] = value;
-            } else {
-                // Colored cell - make it LIGHT GRAY (for debugging)
-                data[i] = data[i + 1] = data[i + 2] = 200;
-            }
-        }
-        
-        ctx.putImageData(imageData, 0, 0);
-        
-        // Step 3: Light blur to smooth edges
-        console.log('🔍 Step 3: Smoothing...');
-        imageData = applyGaussianBlur(ctx, width, height, 1);
-        ctx.putImageData(imageData, 0, 0);
-        
-        // Step 4: Final threshold to ensure pure black/white
-        console.log('⚡ Step 4: Final threshold...');
-        imageData = ctx.getImageData(0, 0, width, height);
-        data = imageData.data;
-        
-        for (let i = 0; i < data.length; i += 4) {
-            const gray = data[i];
-            const value = gray > 128 ? 255 : 0;
-            data[i] = data[i + 1] = data[i + 2] = value;
-        }
-        
-        ctx.putImageData(imageData, 0, 0);
-        
-        console.log('✅ Pre-processing complete!');
-        
-        // Debug: Show processed image
-        if (debug) {
-            const debugWindow = window.open('', 'Processed Image - Smart Detection');
-            debugWindow.document.write(`
-                <html>
-                <head><title>Processed Image - Smart Loto Detection</title></head>
-                <body style="margin:0; background:#ccc; padding:20px;">
-                    <h2>Smart Loto Card Processing</h2>
-                    <p>Strategy: Detect WHITE cells → Extract numbers → Remove colored cells</p>
-                    <img src="${canvas.toDataURL('image/png')}" style="max-width:100%; height:auto; border:2px solid #333;">
-                </body>
-                </html>
-            `);
-        }
-        
-        // Return canvas as data URL
-        resolve(canvas.toDataURL('image/png'));
-    });
-}
-
-// Gaussian Blur for noise reduction
-function applyGaussianBlur(ctx, width, height, radius) {
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const data = imageData.data;
-    const output = new Uint8ClampedArray(data);
-    
-    const kernel = [1, 2, 1, 2, 4, 2, 1, 2, 1]; // 3x3 Gaussian kernel
-    const kernelSum = 16;
-    
-    for (let y = 1; y < height - 1; y++) {
-        for (let x = 1; x < width - 1; x++) {
-            let r = 0, g = 0, b = 0;
-            
-            for (let ky = -1; ky <= 1; ky++) {
-                for (let kx = -1; kx <= 1; kx++) {
-                    const idx = ((y + ky) * width + (x + kx)) * 4;
-                    const weight = kernel[(ky + 1) * 3 + (kx + 1)];
-                    r += data[idx] * weight;
-                    g += data[idx + 1] * weight;
-                    b += data[idx + 2] * weight;
-                }
-            }
-            
-            const idx = (y * width + x) * 4;
-            output[idx] = r / kernelSum;
-            output[idx + 1] = g / kernelSum;
-            output[idx + 2] = b / kernelSum;
-        }
-    }
-    
-    return new ImageData(output, width, height);
-}
-
-// Light Erosion (only remove isolated pixels, preserve text)
-function applyLightErosion(ctx, width, height) {
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const data = imageData.data;
-    const output = new Uint8ClampedArray(data);
-    
-    for (let y = 1; y < height - 1; y++) {
-        for (let x = 1; x < width - 1; x++) {
-            const idx = (y * width + x) * 4;
-            
-            // Only erode if pixel is white and has less than 3 white neighbors
-            if (data[idx] === 255) {
-                let whiteNeighbors = 0;
-                
-                for (let ky = -1; ky <= 1; ky++) {
-                    for (let kx = -1; kx <= 1; kx++) {
-                        if (ky === 0 && kx === 0) continue;
-                        const nIdx = ((y + ky) * width + (x + kx)) * 4;
-                        if (data[nIdx] === 255) whiteNeighbors++;
-                    }
-                }
-                
-                // Keep white only if it has at least 3 white neighbors (connected)
-                const value = whiteNeighbors >= 3 ? 255 : 0;
-                output[idx] = output[idx + 1] = output[idx + 2] = value;
-            } else {
-                output[idx] = output[idx + 1] = output[idx + 2] = 0;
-            }
-        }
-    }
-    
-    return new ImageData(output, width, height);
-}
-
-// Light Dilation (restore text slightly)
-function applyLightDilation(ctx, width, height) {
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const data = imageData.data;
-    const output = new Uint8ClampedArray(data);
-    
-    for (let y = 1; y < height - 1; y++) {
-        for (let x = 1; x < width - 1; x++) {
-            const idx = (y * width + x) * 4;
-            
-            // If pixel is black, check if any neighbor is white
-            if (data[idx] === 0) {
-                let hasWhiteNeighbor = false;
-                
-                // Check only direct neighbors (not diagonals)
-                const neighbors = [
-                    ((y - 1) * width + x) * 4,     // top
-                    ((y + 1) * width + x) * 4,     // bottom
-                    (y * width + (x - 1)) * 4,     // left
-                    (y * width + (x + 1)) * 4      // right
-                ];
-                
-                for (const nIdx of neighbors) {
-                    if (data[nIdx] === 255) {
-                        hasWhiteNeighbor = true;
-                        break;
-                    }
-                }
-                
-                const value = hasWhiteNeighbor ? 255 : 0;
-                output[idx] = output[idx + 1] = output[idx + 2] = value;
-            } else {
-                output[idx] = output[idx + 1] = output[idx + 2] = 255;
-            }
-        }
-    }
-    
-    return new ImageData(output, width, height);
 }
 
 // ===== OCR SCANNING WITH OCR.SPACE API =====
@@ -401,22 +174,22 @@ async function scanImage() {
     elements.scanProgress.style.display = 'block';
     
     try {
-        console.log('🔍 Starting OCR scan with OCR.space API...');
         
-        // Get original file from input (better than base64)
+        // Get original file from input
         elements.progressText.textContent = 'Preparing image...';
         elements.progressFill.style.width = '20%';
         
-        const file = elements.fileInput.files[0];
-        if (!file) {
+        const originalFile = elements.fileInput.files[0];
+        if (!originalFile) {
             throw new Error('No file selected');
         }
         
-        console.log('📁 File info:', {
-            name: file.name,
-            type: file.type,
-            size: file.size
-        });
+        // Compress image if > 1MB (OCR.space free tier limit)
+        let file = originalFile;
+        if (originalFile.size > 1024 * 1024) {
+            elements.progressText.textContent = 'Compressing image...';
+            file = await compressImage(originalFile, 0.9); // 90% quality
+        }
         
         // Prepare form data for OCR.space API using file upload
         elements.progressText.textContent = 'Uploading to OCR.space...';
@@ -431,9 +204,7 @@ async function scanImage() {
         formData.append('scale', 'true'); // Auto-scale for better accuracy
         formData.append('detectOrientation', 'true'); // Auto-detect orientation
         
-        console.log('📋 FormData prepared with file upload');
         
-        console.log('📤 Sending to OCR.space API...');
         elements.progressText.textContent = 'Scanning with OCR.space...';
         elements.progressFill.style.width = '60%';
         
@@ -448,7 +219,6 @@ async function scanImage() {
         }
         
         const result = await response.json();
-        console.log('📝 OCR.space Result:', result);
         
         elements.progressFill.style.width = '80%';
         
@@ -459,12 +229,9 @@ async function scanImage() {
         
         // Extract text from result
         const parsedText = result.ParsedResults?.[0]?.ParsedText || '';
-        console.log('📄 Parsed Text:', parsedText);
         
         // Extract numbers (00-99)
         const numbers = extractNumbers(parsedText);
-        console.log('🔢 Extracted numbers:', numbers);
-        console.log('📊 Total numbers found:', numbers.length);
         
         elements.progressFill.style.width = '100%';
 
@@ -474,8 +241,6 @@ async function scanImage() {
             return;
         }
 
-        console.log(`✅ Successfully extracted ${numbers.length} numbers`);
-
         // Don't auto-fill - let user see what was scanned
         // User can manually add missing numbers in verify step
         gameState.scannedNumbers = numbers;
@@ -484,7 +249,6 @@ async function scanImage() {
         showVerifySection();
         
     } catch (error) {
-        console.error('❌ OCR Error:', error);
         alert('Scan failed. Please try again or enter numbers manually.');
         resetUpload();
     } finally {
@@ -534,20 +298,54 @@ function extractNumbers(text) {
     return [...new Set(numbers)];
 }
 
-// Helper: Convert image element to Blob
-function imageToBlob(imageElement) {
-    return new Promise((resolve) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+// Helper: Compress image to reduce file size
+function compressImage(file, quality = 0.9) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
         
-        canvas.width = imageElement.naturalWidth || imageElement.width;
-        canvas.height = imageElement.naturalHeight || imageElement.height;
+        reader.onload = (e) => {
+            const img = new Image();
+            
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Calculate new dimensions (max 1920px width)
+                let width = img.width;
+                let height = img.height;
+                const maxWidth = 1920;
+                
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Draw and compress
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        // Create a new File object with same name
+                        const compressedFile = new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        resolve(compressedFile);
+                    } else {
+                        reject(new Error('Compression failed'));
+                    }
+                }, 'image/jpeg', quality);
+            };
+            
+            img.onerror = () => reject(new Error('Failed to load image'));
+            img.src = e.target.result;
+        };
         
-        ctx.drawImage(imageElement, 0, 0);
-        
-        canvas.toBlob((blob) => {
-            resolve(blob);
-        }, 'image/jpeg', 0.95); // JPEG with 95% quality
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
     });
 }
 
@@ -763,7 +561,6 @@ function checkWin() {
 }
 
 function showWinModal(winResult) {
-    console.log('🎉 WIN!', winResult);
     
     // Update pattern name
     elements.winPatternName.textContent = winResult.pattern;
@@ -810,7 +607,6 @@ function saveGameState() {
     try {
         localStorage.setItem('lotoGameState', JSON.stringify(gameState));
     } catch (error) {
-        console.error('Failed to save game state:', error);
     }
 }
 
@@ -830,7 +626,6 @@ function loadSavedGame() {
             }
         }
     } catch (error) {
-        console.error('Failed to load game state:', error);
     }
 }
 
@@ -896,7 +691,6 @@ function initParticles() {
         container.appendChild(particle);
     }
 
-    console.log('✨ Particles initialized');
 }
 
 // Add CSS animation for particles
