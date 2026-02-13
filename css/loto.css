@@ -1,0 +1,918 @@
+/* Lô Tô Digital Page Styles */
+
+/* ===== VARIABLES ===== */
+:root {
+    --loto-primary: #667eea;
+    --loto-secondary: #764ba2;
+    --loto-accent: #f093fb;
+    --loto-success: #4ade80;
+    --loto-warning: #fbbf24;
+    --loto-danger: #ef4444;
+    --loto-dark: #1a1a2e;
+    --loto-card-bg: rgba(255, 255, 255, 0.05);
+    --loto-card-border: rgba(255, 255, 255, 0.1);
+    --loto-text: #ffffff;
+    --loto-text-muted: rgba(255, 255, 255, 0.7);
+}
+
+/* ===== PARTICLES BACKGROUND ===== */
+.particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+/* ===== BODY & LAYOUT ===== */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    color: var(--loto-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ===== MAIN CONTAINER ===== */
+.loto-container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 20px 40px;
+}
+
+/* ===== HEADER ===== */
+.loto-header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeInDown 0.8s ease;
+}
+
+.header-icon {
+    font-size: 64px;
+    margin-bottom: 10px;
+    animation: bounce 2s ease infinite;
+}
+
+.loto-header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    background: linear-gradient(135deg, var(--loto-primary), var(--loto-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+}
+
+.subtitle {
+    font-size: 16px;
+    color: var(--loto-text-muted);
+    margin: 0;
+}
+
+/* ===== STEP CARDS ===== */
+.step-card {
+    background: var(--loto-card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--loto-card-border);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 0.8s ease;
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--loto-primary), var(--loto-secondary));
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.step-header h2 {
+    font-size: 24px;
+    margin: 0;
+    flex: 1;
+}
+
+/* ===== UPLOAD AREA ===== */
+.upload-area {
+    border: 2px dashed var(--loto-card-border);
+    border-radius: 15px;
+    padding: 60px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.upload-area:hover {
+    border-color: var(--loto-primary);
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.upload-area.drag-over {
+    border-color: var(--loto-accent);
+    background: rgba(240, 147, 251, 0.1);
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 64px;
+    margin-bottom: 15px;
+    animation: float 3s ease infinite;
+}
+
+.upload-area p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.upload-hint {
+    font-size: 14px;
+    color: var(--loto-text-muted);
+}
+
+/* ===== IMAGE PREVIEW ===== */
+.image-preview {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    margin-bottom: 15px;
+}
+
+/* ===== SCAN PROGRESS ===== */
+.scan-progress {
+    margin-top: 20px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--loto-primary), var(--loto-accent));
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.3s ease;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+#progress-text {
+    text-align: center;
+    font-size: 14px;
+    color: var(--loto-text-muted);
+}
+
+/* ===== LOTO GRID ===== */
+.loto-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.loto-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--loto-card-border);
+    border-radius: 10px;
+    font-size: 24px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.loto-cell:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: var(--loto-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.loto-cell.marked {
+    background: linear-gradient(135deg, var(--loto-success), #22c55e);
+    border-color: var(--loto-success);
+    animation: markPulse 0.5s ease;
+}
+
+.loto-cell.marked::after {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 16px;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.loto-cell.winning {
+    background: linear-gradient(135deg, var(--loto-warning), #f59e0b);
+    border-color: var(--loto-warning);
+    animation: winPulse 1s ease infinite;
+}
+
+@keyframes markPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes winPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(251, 191, 36, 0.5); }
+    50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(251, 191, 36, 0.8); }
+}
+
+/* ===== VERIFY SECTION ===== */
+.verify-hint {
+    text-align: center;
+    color: var(--loto-text-muted);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.verify-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.verify-actions button {
+    flex: 1;
+}
+
+/* ===== GAME SECTION ===== */
+.input-section {
+    margin-bottom: 30px;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#number-input {
+    flex: 1;
+    padding: 15px 20px;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--loto-card-border);
+    border-radius: 10px;
+    color: var(--loto-text);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#number-input:focus {
+    border-color: var(--loto-primary);
+    background: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+#number-input::placeholder {
+    color: var(--loto-text-muted);
+}
+
+/* Remove spinner for number input */
+#number-input::-webkit-outer-spin-button,
+#number-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#number-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* ===== QUICK NUMBERS ===== */
+.quick-numbers {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.quick-number {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--loto-card-border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-number:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: var(--loto-primary);
+    transform: translateY(-2px);
+}
+
+/* ===== HISTORY SECTION ===== */
+.history-section {
+    margin-bottom: 30px;
+}
+
+.history-section h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: var(--loto-text-muted);
+}
+
+.called-numbers {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    min-height: 60px;
+    align-items: center;
+}
+
+.called-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--loto-primary), var(--loto-secondary));
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    animation: fadeInScale 0.3s ease;
+}
+
+.empty-state {
+    width: 100%;
+    text-align: center;
+    color: var(--loto-text-muted);
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* ===== CARD SECTION ===== */
+.card-section {
+    margin-bottom: 30px;
+}
+
+.card-section h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: var(--loto-text-muted);
+}
+
+.game-grid .loto-cell {
+    font-size: 28px;
+}
+
+/* ===== GAME ACTIONS ===== */
+.game-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.game-actions button {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary,
+.btn-secondary {
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--loto-primary), var(--loto-secondary));
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--loto-text);
+    border: 2px solid var(--loto-card-border);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--loto-primary);
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    font-size: 18px;
+}
+
+/* ===== WIN MODAL ===== */
+.win-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.win-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.win-content {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid var(--loto-card-border);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: scaleBounce 0.6s ease;
+}
+
+.win-fireworks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.firework {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle, var(--loto-accent), transparent);
+    border-radius: 50%;
+    animation: fireworkBurst 2s ease infinite;
+}
+
+.firework:nth-child(1) {
+    top: 20%;
+    left: 20%;
+    animation-delay: 0s;
+}
+
+.firework:nth-child(2) {
+    top: 30%;
+    right: 20%;
+    animation-delay: 0.5s;
+}
+
+.firework:nth-child(3) {
+    bottom: 30%;
+    left: 50%;
+    animation-delay: 1s;
+}
+
+@keyframes fireworkBurst {
+    0% { transform: scale(0); opacity: 1; }
+    50% { transform: scale(20); opacity: 0.5; }
+    100% { transform: scale(40); opacity: 0; }
+}
+
+.win-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.win-icon {
+    font-size: 48px;
+    animation: bounce 1s ease infinite;
+}
+
+.win-header h2 {
+    font-size: 48px;
+    margin: 0;
+    background: linear-gradient(135deg, var(--loto-warning), #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+}
+
+.win-message {
+    text-align: center;
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+.win-pattern {
+    text-align: center;
+    font-size: 18px;
+    color: var(--loto-text-muted);
+    margin-bottom: 20px;
+}
+
+#win-pattern-name {
+    color: var(--loto-accent);
+    font-weight: 700;
+}
+
+.win-grid {
+    margin: 20px 0;
+}
+
+.win-numbers {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.win-numbers p {
+    font-size: 16px;
+    color: var(--loto-text-muted);
+    margin-bottom: 10px;
+}
+
+#win-numbers-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.win-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--loto-warning), #f59e0b);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+}
+
+.win-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.win-actions button {
+    flex: 1;
+}
+
+/* ===== EDIT MODAL ===== */
+.edit-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+}
+
+.edit-content {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid var(--loto-card-border);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: scaleBounce 0.3s ease;
+}
+
+.edit-content h3 {
+    font-size: 24px;
+    margin: 0 0 20px;
+    text-align: center;
+}
+
+#edit-input {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--loto-card-border);
+    border-radius: 10px;
+    color: var(--loto-text);
+    outline: none;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+#edit-input:focus {
+    border-color: var(--loto-primary);
+    background: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+.edit-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.edit-actions button {
+    flex: 1;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes scaleBounce {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .loto-container {
+        padding: 70px 15px 30px;
+    }
+
+    .loto-header h1 {
+        font-size: 32px;
+    }
+
+    .header-icon {
+        font-size: 48px;
+    }
+
+    .step-card {
+        padding: 20px;
+    }
+
+    .step-header h2 {
+        font-size: 20px;
+    }
+
+    .step-number {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+
+    .loto-grid {
+        gap: 8px;
+    }
+
+    .loto-cell {
+        font-size: 20px;
+    }
+
+    .game-grid .loto-cell {
+        font-size: 24px;
+    }
+
+    #number-input {
+        font-size: 20px;
+    }
+
+    .game-actions button {
+        min-width: 120px;
+        font-size: 14px;
+        padding: 12px 20px;
+    }
+
+    .win-content {
+        padding: 30px 20px;
+    }
+
+    .win-header h2 {
+        font-size: 36px;
+    }
+
+    .win-icon {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .loto-header h1 {
+        font-size: 28px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+    }
+
+    .step-card {
+        padding: 15px;
+    }
+
+    .loto-grid {
+        gap: 6px;
+    }
+
+    .loto-cell {
+        font-size: 18px;
+        border-radius: 8px;
+    }
+
+    .game-grid .loto-cell {
+        font-size: 20px;
+    }
+
+    .called-number {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .game-actions {
+        flex-direction: column;
+    }
+
+    .game-actions button {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .verify-actions {
+        flex-direction: column;
+    }
+
+    .win-header h2 {
+        font-size: 28px;
+    }
+}
+

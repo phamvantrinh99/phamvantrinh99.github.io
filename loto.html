@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>Lô Tô Digital - OCR Scanner</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/loto.css">
+</head>
+<body>
+    <!-- Particles Background -->
+    <div class="particles-container"></div>
+
+    <!-- Hamburger Menu -->
+    <button class="hamburger-menu" id="hamburger-menu" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu" id="nav-menu">
+        <ul class="nav-links">
+            <li><a href="index.html">🏠 Gallery</a></li>
+            <li><a href="manage.html">⚙️ Manage Images</a></li>
+            <li><a href="voices.html">🎤 Voice Synthesis</a></li>
+            <li><a href="calendar.html">📅 Calendar</a></li>
+            <li><a href="loto.html" class="active">🎰 Lô Tô Digital</a></li>
+        </ul>
+    </nav>
+
+    <!-- Navigation Overlay -->
+    <div class="nav-overlay" id="nav-overlay"></div>
+
+    <!-- Main Container -->
+    <div class="loto-container">
+        <!-- Header -->
+        <header class="loto-header">
+            <div class="header-icon">🎰</div>
+            <h1>LÔ TÔ DIGITAL</h1>
+            <p class="subtitle">Scan your card & play smart</p>
+        </header>
+
+        <!-- Step 1: Upload & Scan -->
+        <section class="upload-section" id="upload-section">
+            <div class="step-card">
+                <div class="step-header">
+                    <span class="step-number">1</span>
+                    <h2>Upload Your Lô Tô Card</h2>
+                </div>
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">📷</div>
+                    <p>Click to upload or drag & drop</p>
+                    <p class="upload-hint">Supports: JPG, PNG, HEIC</p>
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                </div>
+                <div class="image-preview" id="image-preview" style="display: none;">
+                    <img id="preview-img" alt="Card Preview">
+                    <button class="btn-secondary" id="change-image-btn">Change Image</button>
+                </div>
+                <button class="btn-primary" id="scan-btn" style="display: none;">
+                    <span class="btn-icon">🔍</span>
+                    Scan Card
+                </button>
+                <div class="scan-progress" id="scan-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <p id="progress-text">Scanning...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: Verify Numbers -->
+        <section class="verify-section" id="verify-section" style="display: none;">
+            <div class="step-card">
+                <div class="step-header">
+                    <span class="step-number">2</span>
+                    <h2>Verify Scanned Numbers</h2>
+                </div>
+                <p class="verify-hint">Click any number to edit it</p>
+                <div class="loto-grid" id="verify-grid">
+                    <!-- 5x5 grid will be generated here -->
+                </div>
+                <div class="verify-actions">
+                    <button class="btn-secondary" id="rescan-btn">🔄 Re-scan</button>
+                    <button class="btn-primary" id="confirm-btn">✓ Confirm & Start</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Play Game -->
+        <section class="game-section" id="game-section" style="display: none;">
+            <div class="step-card">
+                <div class="step-header">
+                    <span class="step-number">3</span>
+                    <h2>Play Game</h2>
+                </div>
+                
+                <!-- Input Number -->
+                <div class="input-section">
+                    <div class="input-group">
+                        <input type="number" id="number-input" placeholder="00-99" min="0" max="99" maxlength="2">
+                        <button class="btn-primary" id="mark-btn">
+                            <span class="btn-icon">✓</span>
+                            Mark
+                        </button>
+                    </div>
+                    <div class="quick-numbers" id="quick-numbers">
+                        <!-- Quick access to recent/suggested numbers -->
+                    </div>
+                </div>
+
+                <!-- Called Numbers History -->
+                <div class="history-section">
+                    <h3>Called Numbers (<span id="called-count">0</span>)</h3>
+                    <div class="called-numbers" id="called-numbers">
+                        <p class="empty-state">No numbers called yet</p>
+                    </div>
+                </div>
+
+                <!-- Loto Card -->
+                <div class="card-section">
+                    <h3>Your Card</h3>
+                    <div class="loto-grid game-grid" id="game-grid">
+                        <!-- 5x5 grid will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Game Actions -->
+                <div class="game-actions">
+                    <button class="btn-secondary" id="clear-btn">🗑️ Clear Marks</button>
+                    <button class="btn-secondary" id="upload-new-btn">📷 Upload New Card</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Win Modal -->
+    <div class="win-modal" id="win-modal" style="display: none;">
+        <div class="win-overlay"></div>
+        <div class="win-content">
+            <div class="win-fireworks">
+                <div class="firework"></div>
+                <div class="firework"></div>
+                <div class="firework"></div>
+            </div>
+            <div class="win-header">
+                <div class="win-icon">🎊</div>
+                <h2>BINGO!</h2>
+                <div class="win-icon">🎊</div>
+            </div>
+            <p class="win-message">Congratulations!</p>
+            <p class="win-pattern">Winning Pattern: <span id="win-pattern-name"></span></p>
+            <div class="loto-grid win-grid" id="win-grid">
+                <!-- Winner grid will be shown here -->
+            </div>
+            <div class="win-numbers">
+                <p>Winning Numbers:</p>
+                <div id="win-numbers-list"></div>
+            </div>
+            <div class="win-actions">
+                <button class="btn-primary" id="play-again-btn">🎮 Play Again</button>
+                <button class="btn-secondary" id="new-card-btn">📷 New Card</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Number Modal -->
+    <div class="edit-modal" id="edit-modal" style="display: none;">
+        <div class="edit-overlay"></div>
+        <div class="edit-content">
+            <h3>Edit Number</h3>
+            <input type="number" id="edit-input" placeholder="00-99" min="0" max="99" maxlength="2">
+            <div class="edit-actions">
+                <button class="btn-secondary" id="cancel-edit-btn">Cancel</button>
+                <button class="btn-primary" id="save-edit-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/particles-calendar.js"></script>
+    <script src="js/loto.js"></script>
+</body>
+</html>
+
