@@ -228,6 +228,16 @@ body {
     margin: 20px 0;
 }
 
+/* ===== VERIFY & GAME GRID CONTAINERS ===== */
+#verify-grid,
+#game-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
 .loto-cell {
     aspect-ratio: 1;
     display: flex;
@@ -254,16 +264,7 @@ body {
     background: linear-gradient(135deg, var(--loto-success), #22c55e);
     border-color: var(--loto-success);
     animation: markPulse 0.5s ease;
-}
-
-.loto-cell.marked::after {
-    content: '✓';
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    font-size: 16px;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
 }
 
 .loto-cell.winning {

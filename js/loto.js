@@ -2,13 +2,14 @@
 
 // ===== STATE MANAGEMENT =====
 let gameState = {
-    currentStep: 'upload', // upload, verify, play
-    uploadedImage: null,
+    currentStep: 'upload',
+    uploadedImages: [],
+    cards: [], // Array of { id, name, numbers: [], markedIndices: [] }
+    currentCardIndex: 0,
     scannedNumbers: [],
-    cardNumbers: [],
-    markedIndices: [],
     calledNumbers: [],
     editingIndex: null,
+    editingCardId: null,
     isScanning: false
 };
 
@@ -130,8 +131,8 @@ function setupEventListeners() {
 
 // ===== UPLOAD HANDLERS =====
 function handleFileSelect(e) {
-    const file = e.target.files[0];
-    if (file) processFile(file);
+    const files = Array.from(e.target.files);
+    if (files.length > 0) processFiles(files);
 }
 
 function handleDragOver(e) {
@@ -147,22 +148,112 @@ function handleDragLeave(e) {
 function handleDrop(e) {
     e.preventDefault();
     elements.uploadArea.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-        processFile(file);
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    if (files.length > 0) {
+        processFiles(files);
     }
 }
 
-function processFile(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        gameState.uploadedImage = e.target.result;
-        elements.previewImg.src = e.target.result;
-        elements.uploadArea.style.display = 'none';
-        elements.imagePreview.style.display = 'block';
-        elements.scanBtn.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
+function processFiles(files) {
+    gameState.uploadedImages = files;
+    
+    elements.uploadArea.style.display = 'none';
+    elements.imagePreview.style.display = 'block';
+    
+    // Clear previous preview
+    elements.imagePreview.innerHTML = '';
+    
+    // Create container for multiple images
+    const previewContainer = document.createElement('div');
+    previewContainer.style.display = 'grid';
+    previewContainer.style.gridTemplateColumns = files.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))';
+    previewContainer.style.gap = '15px';
+    previewContainer.style.marginBottom = '20px';
+    
+    files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imgWrapper = document.createElement('div');
+            imgWrapper.style.position = 'relative';
+            imgWrapper.style.borderRadius = '12px';
+            imgWrapper.style.overflow = 'hidden';
+            imgWrapper.style.border = '2px solid rgba(102, 126, 234, 0.3)';
+            imgWrapper.style.cursor = 'pointer';
+            imgWrapper.style.transition = 'transform 0.2s, box-shadow 0.2s';
+            imgWrapper.style.background = '#1a1a2e';
+            
+            imgWrapper.addEventListener('mouseenter', () => {
+                imgWrapper.style.transform = 'scale(1.02)';
+                imgWrapper.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
+            });
+            imgWrapper.addEventListener('mouseleave', () => {
+                imgWrapper.style.transform = 'scale(1)';
+                imgWrapper.style.boxShadow = 'none';
+            });
+            imgWrapper.addEventListener('click', () => openImageModal(e.target.result, index + 1));
+            
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.width = '100%';
+            img.style.height = '250px';
+            img.style.objectFit = 'contain';
+            img.style.display = 'block';
+            
+            const label = document.createElement('div');
+            label.textContent = `Card ${index + 1}`;
+            label.style.position = 'absolute';
+            label.style.top = '10px';
+            label.style.left = '10px';
+            label.style.background = 'rgba(102, 126, 234, 0.9)';
+            label.style.color = 'white';
+            label.style.padding = '5px 10px';
+            label.style.borderRadius = '6px';
+            label.style.fontSize = '14px';
+            label.style.fontWeight = 'bold';
+            
+            const clickHint = document.createElement('div');
+            clickHint.textContent = '🔍 Click to view';
+            clickHint.style.position = 'absolute';
+            clickHint.style.bottom = '10px';
+            clickHint.style.right = '10px';
+            clickHint.style.background = 'rgba(0, 0, 0, 0.7)';
+            clickHint.style.color = 'white';
+            clickHint.style.padding = '4px 8px';
+            clickHint.style.borderRadius = '4px';
+            clickHint.style.fontSize = '12px';
+            clickHint.style.opacity = '0.8';
+            
+            imgWrapper.appendChild(img);
+            imgWrapper.appendChild(label);
+            imgWrapper.appendChild(clickHint);
+            previewContainer.appendChild(imgWrapper);
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    elements.imagePreview.appendChild(previewContainer);
+    
+    // Add buttons
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.gap = '10px';
+    buttonContainer.style.justifyContent = 'center';
+    
+    const changeBtn = document.createElement('button');
+    changeBtn.className = 'btn-secondary';
+    changeBtn.id = 'change-image-btn';
+    changeBtn.textContent = 'Change Images';
+    changeBtn.addEventListener('click', () => elements.fileInput.click());
+    
+    const scanBtn = document.createElement('button');
+    scanBtn.className = 'btn-primary';
+    scanBtn.id = 'scan-btn';
+    scanBtn.innerHTML = `<span class="btn-icon">🔍</span> Scan ${files.length} Card${files.length > 1 ? 's' : ''}`;
+    scanBtn.addEventListener('click', scanImage);
+    
+    buttonContainer.appendChild(changeBtn);
+    buttonContainer.appendChild(scanBtn);
+    elements.imagePreview.appendChild(buttonContainer);
 }
 
 // ===== OCR SCANNING WITH OCR.SPACE API =====
@@ -173,135 +264,131 @@ async function scanImage() {
     elements.scanBtn.style.display = 'none';
     elements.scanProgress.style.display = 'block';
     
+    const files = gameState.uploadedImages;
+    if (!files || files.length === 0) {
+        alert('No images selected');
+        resetUpload();
+        return;
+    }
+    
+    gameState.cards = [];
+    
     try {
-        
-        elements.progressText.textContent = 'Preparing image...';
-        elements.progressFill.style.width = '20%';
-        
-        const originalFile = elements.fileInput.files[0];
-        if (!originalFile) {
-            throw new Error('No file selected');
-        }
-        
-        elements.progressText.textContent = 'Optimizing image...';
-        let file;
-        
-        try {
-            file = await optimizeImageForOCR(originalFile);
-            elements.progressText.textContent = '✓ Image optimized';
-            console.log(`✓ Final size: ${(file.size / 1024).toFixed(2)}KB`);
-        } catch (optimizeError) {
-            console.error('❌ Optimization failed:', optimizeError.message);
+        for (let i = 0; i < files.length; i++) {
+            const originalFile = files[i];
+            const cardName = `Card ${i + 1}`;
             
-            const errorMsg = `⚠️ Không thể tối ưu hóa ảnh.\n\nLỗi: ${optimizeError.message}\n\nVui lòng:\n- Sử dụng ảnh nhỏ hơn (< 5MB)\n- Crop ảnh để chỉ chụp thẻ lô tô\n- Giảm độ phân giải khi chụp`;
+            elements.progressText.textContent = `Scanning ${cardName} (${i + 1}/${files.length})...`;
+            elements.progressFill.style.width = `${((i / files.length) * 80)}%`;
             
-            alert(errorMsg);
-            throw optimizeError;
-        }
-        
-        elements.progressText.textContent = 'Uploading to OCR.space...';
-        elements.progressFill.style.width = '40%';
-        
-        const ocrFile = new File([file], originalFile.name || 'loto-card.jpg', {
-            type: 'image/jpeg',
-            lastModified: Date.now()
-        });
-        
-        console.log('📤 Uploading:', {
-            name: ocrFile.name,
-            type: ocrFile.type,
-            size: `${(ocrFile.size / 1024).toFixed(2)}KB`
-        });
-        
-        const formData = new FormData();
-        formData.append('file', ocrFile);
-        formData.append('apikey', 'K86801680588957');
-        formData.append('language', 'eng');
-        formData.append('isOverlayRequired', 'false');
-        formData.append('OCREngine', '3');
-        formData.append('scale', 'true');
-        formData.append('detectOrientation', 'true');
-        formData.append('filetype', 'JPG');
-        
-        
-        elements.progressText.textContent = 'Scanning with OCR.space...';
-        elements.progressFill.style.width = '60%';
-        
-        // Call OCR.space API with retry logic
-        let result;
-        let lastError;
-        const maxRetries = 2;
-        
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            console.log(`\n📋 Processing ${cardName}: ${originalFile.name}`);
+            
             try {
-                if (attempt > 1) {
-                    console.log(`🔄 Retry attempt ${attempt}/${maxRetries}...`);
-                    elements.progressText.textContent = `Retrying OCR (${attempt}/${maxRetries})...`;
-                    // Wait a bit before retry
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                const numbers = await scanSingleCard(originalFile);
+                
+                if (numbers.length > 0) {
+                    gameState.cards.push({
+                        id: Date.now() + i,
+                        name: cardName,
+                        fileName: originalFile.name,
+                        numbers: numbers,
+                        markedIndices: []
+                    });
+                    console.log(`✓ ${cardName}: ${numbers.length} numbers detected`);
+                } else {
+                    console.warn(`⚠️ ${cardName}: No numbers detected`);
                 }
-                
-                const response = await fetch('https://api.ocr.space/parse/image', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`OCR API error: ${response.status}`);
-                }
-                
-                result = await response.json();
-                
-                // Check for errors
-                if (result.IsErroredOnProcessing) {
-                    if (result.ErrorMessage?.includes('Timed out') || result.ErrorMessage?.includes('E101')) {
-                        lastError = new Error('OCR timeout');
-                        console.warn(`⚠️ Attempt ${attempt} timed out`);
-                        continue;
-                    }
-                    throw new Error(result.ErrorMessage || 'OCR processing failed');
-                }
-                
-                console.log('✓ OCR completed');
-                break;
                 
             } catch (error) {
-                lastError = error;
-                console.error(`❌ Attempt ${attempt} failed:`, error.message);
-                
-                if (attempt === maxRetries) {
-                    throw lastError;
-                }
+                console.error(`❌ ${cardName} failed:`, error.message);
             }
         }
         
-        if (!result || result.IsErroredOnProcessing) {
-            throw lastError || new Error('OCR failed after all retries');
-        }
-        
-        elements.progressFill.style.width = '80%';
-        
-        const parsedText = result.ParsedResults?.[0]?.ParsedText || '';
-        const numbers = extractNumbers(parsedText);
-        
         elements.progressFill.style.width = '100%';
-
-        if (numbers.length === 0) {
-            alert('❌ No numbers detected. Please try a clearer image or enter numbers manually.');
+        
+        if (gameState.cards.length === 0) {
+            alert('❌ No numbers detected in any card. Please try clearer images.');
             resetUpload();
             return;
         }
-
-        gameState.scannedNumbers = numbers;
+        
+        console.log(`\n✓ Successfully scanned ${gameState.cards.length}/${files.length} cards`);
         showVerifySection();
         
     } catch (error) {
-        console.error('❌ OCR Error:', error);
-        alert('Scan failed. Please try again or enter numbers manually.');
+        console.error('❌ Scanning error:', error);
+        alert('Scan failed. Please try again.');
         resetUpload();
     } finally {
         gameState.isScanning = false;
     }
+}
+
+async function scanSingleCard(originalFile) {
+    const file = await optimizeImageForOCR(originalFile);
+    
+    const ocrFile = new File([file], originalFile.name || 'loto-card.jpg', {
+        type: 'image/jpeg',
+        lastModified: Date.now()
+    });
+    
+    const formData = new FormData();
+    formData.append('file', ocrFile);
+    formData.append('apikey', 'K86801680588957');
+    formData.append('language', 'eng');
+    formData.append('isOverlayRequired', 'false');
+    formData.append('OCREngine', '3');
+    formData.append('scale', 'true');
+    formData.append('detectOrientation', 'true');
+    formData.append('filetype', 'JPG');
+    
+    let result;
+    let lastError;
+    const maxRetries = 2;
+        
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            if (attempt > 1) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+            
+            const response = await fetch('https://api.ocr.space/parse/image', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`OCR API error: ${response.status}`);
+            }
+            
+            result = await response.json();
+            
+            if (result.IsErroredOnProcessing) {
+                if (result.ErrorMessage?.includes('Timed out') || result.ErrorMessage?.includes('E101')) {
+                    lastError = new Error('OCR timeout');
+                    continue;
+                }
+                throw new Error(result.ErrorMessage || 'OCR processing failed');
+            }
+            
+            break;
+            
+        } catch (error) {
+            lastError = error;
+            if (attempt === maxRetries) {
+                throw lastError;
+            }
+        }
+    }
+    
+    if (!result || result.IsErroredOnProcessing) {
+        throw lastError || new Error('OCR failed');
+    }
+    
+    const parsedText = result.ParsedResults?.[0]?.ParsedText || '';
+    const numbers = extractNumbers(parsedText);
+    
+    return numbers;
 }
 
 function extractNumbers(text) {
@@ -378,10 +465,10 @@ async function optimizeImageForOCR(file) {
     console.log(`📊 Original: ${(convertedFile.size / 1024).toFixed(2)}KB`);
     
     const options = {
-        maxSizeMB: 0.95,
+        maxSizeMB: 0.5,
         maxWidthOrHeight: 2000,
         useWebWorker: true,
-        initialQuality: 0.9,
+        initialQuality: 1,
         fileType: 'image/jpeg',
         preserveExif: false
     };
@@ -420,26 +507,59 @@ function showVerifySection() {
 
 function renderVerifyGrid() {
     elements.verifyGrid.innerHTML = '';
-    gameState.scannedNumbers.forEach((number, index) => {
-        const cell = document.createElement('div');
-        cell.className = 'loto-cell';
-        cell.textContent = number;
-        cell.addEventListener('click', () => openEditModal(index));
-        elements.verifyGrid.appendChild(cell);
+    
+    gameState.cards.forEach((card, cardIndex) => {
+        const cardContainer = document.createElement('div');
+        cardContainer.className = 'card-container';
+        cardContainer.style.marginBottom = '30px';
+        cardContainer.style.padding = '20px';
+        cardContainer.style.background = 'rgba(255, 255, 255, 0.03)';
+        cardContainer.style.border = '2px solid rgba(102, 126, 234, 0.3)';
+        cardContainer.style.borderRadius = '15px';
+        cardContainer.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+        
+        const cardHeader = document.createElement('div');
+        cardHeader.style.marginBottom = '10px';
+        cardHeader.innerHTML = `
+            <h3 style="margin: 0; color: #667eea;">${card.name}</h3>
+            <p style="margin: 5px 0; font-size: 14px; color: #888;">${card.fileName}</p>
+            <p style="margin: 5px 0; font-size: 14px; color: #888;">${card.numbers.length} numbers detected</p>
+        `;
+        
+        const grid = document.createElement('div');
+        grid.className = 'loto-grid';
+        
+        card.numbers.forEach((number, index) => {
+            const cell = document.createElement('div');
+            cell.className = 'loto-cell';
+            cell.textContent = number;
+            cell.addEventListener('click', () => openEditModal(card.id, index));
+            grid.appendChild(cell);
+        });
+        
+        cardContainer.appendChild(cardHeader);
+        cardContainer.appendChild(grid);
+        elements.verifyGrid.appendChild(cardContainer);
     });
 }
 
-function openEditModal(index) {
+function openEditModal(cardId, index) {
+    gameState.editingCardId = cardId;
     gameState.editingIndex = index;
-    elements.editInput.value = gameState.scannedNumbers[index];
-    elements.editModal.style.display = 'flex';
-    elements.editInput.focus();
-    elements.editInput.select();
+    
+    const card = gameState.cards.find(c => c.id === cardId);
+    if (card) {
+        elements.editInput.value = card.numbers[index];
+        elements.editModal.style.display = 'flex';
+        elements.editInput.focus();
+        elements.editInput.select();
+    }
 }
 
 function closeEditModal() {
     elements.editModal.style.display = 'none';
     gameState.editingIndex = null;
+    gameState.editingCardId = null;
 }
 
 function saveEdit() {
@@ -451,13 +571,20 @@ function saveEdit() {
         return;
     }
     
-    gameState.scannedNumbers[gameState.editingIndex] = value;
-    renderVerifyGrid();
+    const card = gameState.cards.find(c => c.id === gameState.editingCardId);
+    if (card) {
+        card.numbers[gameState.editingIndex] = value;
+        renderVerifyGrid();
+    }
+    
     closeEditModal();
 }
 
 function confirmNumbers() {
-    gameState.cardNumbers = [...gameState.scannedNumbers];
+    if (gameState.cards.length === 0) {
+        alert('No cards to confirm');
+        return;
+    }
     showGameSection();
 }
 
@@ -467,21 +594,57 @@ function showGameSection() {
     elements.gameSection.style.display = 'block';
     gameState.currentStep = 'play';
     renderGameGrid();
+    updateCalledNumbers();
     saveGameState();
 }
 
 function renderGameGrid() {
     elements.gameGrid.innerHTML = '';
-    gameState.cardNumbers.forEach((number, index) => {
-        const cell = document.createElement('div');
-        cell.className = 'loto-cell';
-        cell.textContent = number;
+    
+    gameState.cards.forEach((card, cardIndex) => {
+        const cardContainer = document.createElement('div');
+        cardContainer.className = 'card-container';
+        cardContainer.style.marginBottom = '30px';
+        cardContainer.style.padding = '20px';
+        cardContainer.style.background = 'rgba(255, 255, 255, 0.03)';
+        cardContainer.style.border = '2px solid rgba(102, 126, 234, 0.3)';
+        cardContainer.style.borderRadius = '15px';
+        cardContainer.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
         
-        if (gameState.markedIndices.includes(index)) {
-            cell.classList.add('marked');
-        }
+        const cardHeader = document.createElement('div');
+        cardHeader.style.marginBottom = '10px';
+        cardHeader.style.display = 'flex';
+        cardHeader.style.justifyContent = 'space-between';
+        cardHeader.style.alignItems = 'center';
         
-        elements.gameGrid.appendChild(cell);
+        const markedCount = card.markedIndices.length;
+        const totalCount = card.numbers.length;
+        
+        cardHeader.innerHTML = `
+            <div>
+                <h3 style="margin: 0; color: #667eea;">${card.name}</h3>
+                <p style="margin: 5px 0; font-size: 14px; color: #888;">Marked: ${markedCount}/${totalCount}</p>
+            </div>
+        `;
+        
+        const grid = document.createElement('div');
+        grid.className = 'loto-grid';
+        
+        card.numbers.forEach((number, index) => {
+            const cell = document.createElement('div');
+            cell.className = 'loto-cell';
+            cell.textContent = number;
+            
+            if (card.markedIndices.includes(index)) {
+                cell.classList.add('marked');
+            }
+            
+            grid.appendChild(cell);
+        });
+        
+        cardContainer.appendChild(cardHeader);
+        cardContainer.appendChild(grid);
+        elements.gameGrid.appendChild(cardContainer);
     });
 }
 
@@ -490,7 +653,6 @@ function markNumber() {
     
     if (!value) return;
     
-    // Pad to 2 digits
     value = value.padStart(2, '0');
     const num = parseInt(value);
     
@@ -499,36 +661,37 @@ function markNumber() {
         return;
     }
     
-    // Check if already called
     if (gameState.calledNumbers.includes(value)) {
         alert(`Number ${value} has already been called!`);
         return;
     }
     
-    // Find in card
-    const index = gameState.cardNumbers.indexOf(value);
+    gameState.calledNumbers.push(value);
     
-    if (index === -1) {
-        // Not in card - just add to history
-        gameState.calledNumbers.push(value);
-        updateCalledNumbers();
-    } else {
-        // In card - mark it
-        if (!gameState.markedIndices.includes(index)) {
-            gameState.markedIndices.push(index);
-            gameState.calledNumbers.push(value);
-            renderGameGrid();
-            updateCalledNumbers();
+    let foundInAnyCard = false;
+    let winningCards = [];
+    
+    gameState.cards.forEach(card => {
+        const index = card.numbers.indexOf(value);
+        
+        if (index !== -1 && !card.markedIndices.includes(index)) {
+            card.markedIndices.push(index);
+            foundInAnyCard = true;
             
-            // Check for win
-            const winResult = checkWin();
+            const winResult = checkWinForCard(card);
             if (winResult.win) {
-                setTimeout(() => showWinModal(winResult), 500);
+                winningCards.push({ card, winResult });
             }
         }
+    });
+    
+    renderGameGrid();
+    updateCalledNumbers();
+    
+    if (winningCards.length > 0) {
+        setTimeout(() => showWinModal(winningCards[0].card, winningCards[0].winResult), 500);
     }
     
-    // Clear input
     elements.numberInput.value = '';
     elements.numberInput.focus();
     
@@ -554,7 +717,9 @@ function updateCalledNumbers() {
 function clearMarks() {
     if (!confirm('Clear all marks and start over?')) return;
     
-    gameState.markedIndices = [];
+    gameState.cards.forEach(card => {
+        card.markedIndices = [];
+    });
     gameState.calledNumbers = [];
     renderGameGrid();
     updateCalledNumbers();
@@ -565,18 +730,18 @@ function clearMarks() {
 
 function uploadNewCard() {
     if (gameState.currentStep === 'play' && gameState.calledNumbers.length > 0) {
-        if (!confirm('Upload a new card? Current game will be lost.')) return;
+        if (!confirm('Upload new cards? Current game will be lost.')) return;
     }
     
-    // Reset everything
     gameState = {
         currentStep: 'upload',
-        uploadedImage: null,
+        uploadedImages: [],
+        cards: [],
+        currentCardIndex: 0,
         scannedNumbers: [],
-        cardNumbers: [],
-        markedIndices: [],
         calledNumbers: [],
         editingIndex: null,
+        editingCardId: null,
         isScanning: false
     };
     
@@ -596,9 +761,9 @@ function uploadNewCard() {
 }
 
 // ===== WIN DETECTION =====
-function checkWin() {
+function checkWinForCard(card) {
     for (const [name, pattern] of Object.entries(winPatterns)) {
-        if (pattern.every(i => gameState.markedIndices.includes(i))) {
+        if (pattern.every(i => card.markedIndices.includes(i))) {
             return { 
                 win: true, 
                 pattern: name, 
@@ -609,19 +774,16 @@ function checkWin() {
     return { win: false };
 }
 
-function showWinModal(winResult) {
+function showWinModal(card, winResult) {
+    elements.winPatternName.textContent = `${card.name} - ${winResult.pattern}`;
     
-    // Update pattern name
-    elements.winPatternName.textContent = winResult.pattern;
-    
-    // Render win grid
     elements.winGrid.innerHTML = '';
-    gameState.cardNumbers.forEach((number, index) => {
+    card.numbers.forEach((number, index) => {
         const cell = document.createElement('div');
         cell.className = 'loto-cell';
         cell.textContent = number;
         
-        if (gameState.markedIndices.includes(index)) {
+        if (card.markedIndices.includes(index)) {
             cell.classList.add('marked');
         }
         
@@ -632,23 +794,21 @@ function showWinModal(winResult) {
         elements.winGrid.appendChild(cell);
     });
     
-    // Show winning numbers
     elements.winNumbersList.innerHTML = '';
     winResult.indices.forEach(index => {
-        const number = gameState.cardNumbers[index];
+        const number = card.numbers[index];
         const span = document.createElement('div');
         span.className = 'win-number';
         span.textContent = number;
         elements.winNumbersList.appendChild(span);
     });
     
-    // Show modal
     elements.winModal.style.display = 'flex';
 }
 
 function playAgain() {
     elements.winModal.style.display = 'none';
-    newGame();
+    clearMarks();
 }
 
 // ===== SAVE/LOAD GAME STATE =====
@@ -665,16 +825,15 @@ function loadSavedGame() {
         if (saved) {
             const savedState = JSON.parse(saved);
             
-            // Only restore if there's an active game
-            if (savedState.currentStep === 'play' && savedState.cardNumbers.length === 25) {
+            if (savedState.currentStep === 'play' && savedState.cards && savedState.cards.length > 0) {
                 if (confirm('Continue previous game?')) {
                     gameState = savedState;
                     showGameSection();
-                    updateCalledNumbers();
                 }
             }
         }
     } catch (error) {
+        console.error('Failed to load saved game:', error);
     }
 }
 
@@ -694,6 +853,65 @@ function closeMenu() {
     elements.navMenu.classList.remove('active');
     elements.navOverlay.classList.remove('active');
     elements.hamburgerMenu.classList.remove('active');
+}
+
+// ===== IMAGE PREVIEW MODAL =====
+function openImageModal(imageSrc, cardNumber) {
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.background = 'rgba(0, 0, 0, 0.9)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.zIndex = '10000';
+    modal.style.cursor = 'pointer';
+    modal.style.padding = '20px';
+    
+    const content = document.createElement('div');
+    content.style.position = 'relative';
+    content.style.maxWidth = '90%';
+    content.style.maxHeight = '90%';
+    content.style.display = 'flex';
+    content.style.flexDirection = 'column';
+    content.style.alignItems = 'center';
+    
+    const title = document.createElement('div');
+    title.textContent = `Card ${cardNumber}`;
+    title.style.color = 'white';
+    title.style.fontSize = '24px';
+    title.style.fontWeight = 'bold';
+    title.style.marginBottom = '15px';
+    title.style.textAlign = 'center';
+    
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = 'calc(90vh - 100px)';
+    img.style.objectFit = 'contain';
+    img.style.borderRadius = '12px';
+    img.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.5)';
+    
+    const closeHint = document.createElement('div');
+    closeHint.textContent = 'Click anywhere to close';
+    closeHint.style.color = 'rgba(255, 255, 255, 0.7)';
+    closeHint.style.fontSize = '14px';
+    closeHint.style.marginTop = '15px';
+    closeHint.style.textAlign = 'center';
+    
+    content.appendChild(title);
+    content.appendChild(img);
+    content.appendChild(closeHint);
+    modal.appendChild(content);
+    
+    modal.addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    
+    document.body.appendChild(modal);
 }
 
 // ===== PARTICLES =====
