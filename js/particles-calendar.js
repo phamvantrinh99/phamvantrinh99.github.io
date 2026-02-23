@@ -1,9 +1,14 @@
 (function() {
     'use strict';
 
-    const particlesContainer = document.getElementById('particles-container');
+    const particlesContainer = document.querySelector('.particles-container');
     const particleCount = 100; // Số lượng particles
     const colors = ['purple', 'blue', 'cyan', 'white', 'pink'];
+    
+    if (!particlesContainer) {
+        console.log('⚠️ Particles container not found, skipping particle effects');
+        return;
+    }
     
     console.log('🎨 Particles Calendar initialized');
 
