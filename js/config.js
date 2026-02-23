@@ -12,6 +12,12 @@ const CONFIG = {
     CLOUDINARY_FOLDER: 'Test folder', // Folder to upload images to
     CLOUDINARY_UPLOAD_PRESET: 'ml_default', // Unsigned upload preset
     
+    // OCR Image Optimization Settings (Client-side compression)
+    OCR_OPTIMIZATION: {
+        // Maximum file size for OCR.space free tier
+        maxFileSize: 1024 * 1024 // 1MB in bytes
+    },
+    
     // Three.js Scene Configuration
     SCENE: {
         backgroundColor: 0x1a1a2e,

@@ -175,7 +175,6 @@ async function scanImage() {
     
     try {
         
-        // Get original file from input
         elements.progressText.textContent = 'Preparing image...';
         elements.progressFill.style.width = '20%';
         
@@ -184,53 +183,105 @@ async function scanImage() {
             throw new Error('No file selected');
         }
         
-        // Compress image if > 1MB (OCR.space free tier limit)
-        let file = originalFile;
-        if (originalFile.size > 1024 * 1024) {
-            elements.progressText.textContent = 'Compressing image...';
-            file = await compressImage(originalFile, 0.9); // 90% quality
+        elements.progressText.textContent = 'Optimizing image...';
+        let file;
+        
+        try {
+            file = await optimizeImageForOCR(originalFile);
+            elements.progressText.textContent = '✓ Image optimized';
+            console.log(`✓ Final size: ${(file.size / 1024).toFixed(2)}KB`);
+        } catch (optimizeError) {
+            console.error('❌ Optimization failed:', optimizeError.message);
+            
+            const errorMsg = `⚠️ Không thể tối ưu hóa ảnh.\n\nLỗi: ${optimizeError.message}\n\nVui lòng:\n- Sử dụng ảnh nhỏ hơn (< 5MB)\n- Crop ảnh để chỉ chụp thẻ lô tô\n- Giảm độ phân giải khi chụp`;
+            
+            alert(errorMsg);
+            throw optimizeError;
         }
         
-        // Prepare form data for OCR.space API using file upload
         elements.progressText.textContent = 'Uploading to OCR.space...';
         elements.progressFill.style.width = '40%';
         
+        const ocrFile = new File([file], originalFile.name || 'loto-card.jpg', {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+        });
+        
+        console.log('📤 Uploading:', {
+            name: ocrFile.name,
+            type: ocrFile.type,
+            size: `${(ocrFile.size / 1024).toFixed(2)}KB`
+        });
+        
         const formData = new FormData();
-        formData.append('file', file); // Upload original file
-        formData.append('apikey', 'K86801680588957'); // Free API key
+        formData.append('file', ocrFile);
+        formData.append('apikey', 'K86801680588957');
         formData.append('language', 'eng');
         formData.append('isOverlayRequired', 'false');
-        formData.append('OCREngine', '3'); // Engine 3: Best for numbers and handwriting
-        formData.append('scale', 'true'); // Auto-scale for better accuracy
-        formData.append('detectOrientation', 'true'); // Auto-detect orientation
+        formData.append('OCREngine', '3');
+        formData.append('scale', 'true');
+        formData.append('detectOrientation', 'true');
+        formData.append('filetype', 'JPG');
         
         
         elements.progressText.textContent = 'Scanning with OCR.space...';
         elements.progressFill.style.width = '60%';
         
-        // Call OCR.space API
-        const response = await fetch('https://api.ocr.space/parse/image', {
-            method: 'POST',
-            body: formData
-        });
+        // Call OCR.space API with retry logic
+        let result;
+        let lastError;
+        const maxRetries = 2;
         
-        if (!response.ok) {
-            throw new Error(`OCR API error: ${response.status}`);
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                if (attempt > 1) {
+                    console.log(`🔄 Retry attempt ${attempt}/${maxRetries}...`);
+                    elements.progressText.textContent = `Retrying OCR (${attempt}/${maxRetries})...`;
+                    // Wait a bit before retry
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+                
+                const response = await fetch('https://api.ocr.space/parse/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`OCR API error: ${response.status}`);
+                }
+                
+                result = await response.json();
+                
+                // Check for errors
+                if (result.IsErroredOnProcessing) {
+                    if (result.ErrorMessage?.includes('Timed out') || result.ErrorMessage?.includes('E101')) {
+                        lastError = new Error('OCR timeout');
+                        console.warn(`⚠️ Attempt ${attempt} timed out`);
+                        continue;
+                    }
+                    throw new Error(result.ErrorMessage || 'OCR processing failed');
+                }
+                
+                console.log('✓ OCR completed');
+                break;
+                
+            } catch (error) {
+                lastError = error;
+                console.error(`❌ Attempt ${attempt} failed:`, error.message);
+                
+                if (attempt === maxRetries) {
+                    throw lastError;
+                }
+            }
         }
         
-        const result = await response.json();
+        if (!result || result.IsErroredOnProcessing) {
+            throw lastError || new Error('OCR failed after all retries');
+        }
         
         elements.progressFill.style.width = '80%';
         
-        // Check for errors
-        if (result.IsErroredOnProcessing) {
-            throw new Error(result.ErrorMessage || 'OCR processing failed');
-        }
-        
-        // Extract text from result
         const parsedText = result.ParsedResults?.[0]?.ParsedText || '';
-        
-        // Extract numbers (00-99)
         const numbers = extractNumbers(parsedText);
         
         elements.progressFill.style.width = '100%';
@@ -241,14 +292,11 @@ async function scanImage() {
             return;
         }
 
-        // Don't auto-fill - let user see what was scanned
-        // User can manually add missing numbers in verify step
         gameState.scannedNumbers = numbers;
-        
-        // Show verify section
         showVerifySection();
         
     } catch (error) {
+        console.error('❌ OCR Error:', error);
         alert('Scan failed. Please try again or enter numbers manually.');
         resetUpload();
     } finally {
@@ -257,33 +305,26 @@ async function scanImage() {
 }
 
 function extractNumbers(text) {
-    // Extract all 1-4 digit numbers (some might be concatenated)
     const matches = text.match(/\d+/g) || [];
-    
     const numbers = [];
     
-    // Process each match
     matches.forEach(match => {
         if (match.length === 1 || match.length === 2) {
-            // Single or double digit - add directly
             const num = parseInt(match);
             if (num >= 0 && num <= 99) {
                 numbers.push(match.padStart(2, '0'));
             }
         } else if (match.length === 3) {
-            // Three digits - try to split into 1+2 or 2+1
             const num1 = parseInt(match.substring(0, 1));
             const num2 = parseInt(match.substring(1, 3));
             if (num1 >= 0 && num1 <= 9) numbers.push(num1.toString().padStart(2, '0'));
             if (num2 >= 0 && num2 <= 99) numbers.push(num2.toString().padStart(2, '0'));
         } else if (match.length === 4) {
-            // Four digits - split into two 2-digit numbers
             const num1 = parseInt(match.substring(0, 2));
             const num2 = parseInt(match.substring(2, 4));
             if (num1 >= 0 && num1 <= 99) numbers.push(num1.toString().padStart(2, '0'));
             if (num2 >= 0 && num2 <= 99) numbers.push(num2.toString().padStart(2, '0'));
         } else if (match.length > 4) {
-            // Very long number - try to split into 2-digit chunks
             for (let i = 0; i < match.length - 1; i += 2) {
                 const chunk = match.substring(i, i + 2);
                 const num = parseInt(chunk);
@@ -294,59 +335,67 @@ function extractNumbers(text) {
         }
     });
     
-    // Remove duplicates and return
     return [...new Set(numbers)];
 }
 
-// Helper: Compress image to reduce file size
-function compressImage(file, quality = 0.9) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
+async function convertHeicIfNeeded(file) {
+    const fileName = file.name.toLowerCase();
+    const isHeic = fileName.endsWith('.heic') || fileName.endsWith('.heif');
+    
+    if (!isHeic) {
+        return file;
+    }
+    
+    console.log('🔄 Converting HEIC to JPEG...');
+    
+    try {
+        const convertedBlob = await heic2any({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.9
+        });
         
-        reader.onload = (e) => {
-            const img = new Image();
-            
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                // Calculate new dimensions (max 1920px width)
-                let width = img.width;
-                let height = img.height;
-                const maxWidth = 1920;
-                
-                if (width > maxWidth) {
-                    height = (height * maxWidth) / width;
-                    width = maxWidth;
-                }
-                
-                canvas.width = width;
-                canvas.height = height;
-                
-                // Draw and compress
-                ctx.drawImage(img, 0, 0, width, height);
-                
-                canvas.toBlob((blob) => {
-                    if (blob) {
-                        // Create a new File object with same name
-                        const compressedFile = new File([blob], file.name, {
-                            type: 'image/jpeg',
-                            lastModified: Date.now()
-                        });
-                        resolve(compressedFile);
-                    } else {
-                        reject(new Error('Compression failed'));
-                    }
-                }, 'image/jpeg', quality);
-            };
-            
-            img.onerror = () => reject(new Error('Failed to load image'));
-            img.src = e.target.result;
-        };
+        const convertedFile = new File(
+            [convertedBlob], 
+            file.name.replace(/\.heic$/i, '.jpg').replace(/\.heif$/i, '.jpg'),
+            { type: 'image/jpeg', lastModified: Date.now() }
+        );
         
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.readAsDataURL(file);
-    });
+        console.log(`✓ Converted HEIC to JPEG: ${(convertedFile.size / 1024).toFixed(2)}KB`);
+        return convertedFile;
+        
+    } catch (error) {
+        console.error('❌ HEIC conversion failed:', error);
+        throw new Error('Cannot convert HEIC image. Please use JPG or PNG format.');
+    }
+}
+
+async function optimizeImageForOCR(file) {
+    const ocrConfig = CONFIG.OCR_OPTIMIZATION;
+    
+    const convertedFile = await convertHeicIfNeeded(file);
+    
+    console.log(`📊 Original: ${(convertedFile.size / 1024).toFixed(2)}KB`);
+    
+    const options = {
+        maxSizeMB: 0.95,
+        maxWidthOrHeight: 2000,
+        useWebWorker: true,
+        initialQuality: 0.9,
+        fileType: 'image/jpeg',
+        preserveExif: false
+    };
+    
+    const compressedFile = await imageCompression(convertedFile, options);
+    const sizeKB = (compressedFile.size / 1024).toFixed(2);
+    
+    console.log(`✓ Compressed: ${sizeKB}KB`);
+    
+    if (compressedFile.size > ocrConfig.maxFileSize) {
+        throw new Error(`Image too large: ${sizeKB}KB. Please crop or use a smaller image.`);
+    }
+    
+    return compressedFile;
 }
 
 function rescanImage() {
