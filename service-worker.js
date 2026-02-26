@@ -1,4 +1,4 @@
-const CACHE_NAME = 'web-apps-v1';
+const CACHE_NAME = 'web-apps-v2';
 const OFFLINE_URL = '/index.html';
 
 const STATIC_ASSETS = [
@@ -9,12 +9,14 @@ const STATIC_ASSETS = [
   '/voices.html',
   '/calendar.html',
   '/loto.html',
+  '/manifest.json',
   '/css/style.css',
   '/css/dashboard.css',
   '/css/manage.css',
   '/css/voices.css',
   '/css/calendar.css',
   '/css/loto.css',
+  '/css/pwa.css',
   '/js/main.js',
   '/js/config.js',
   '/js/cloudinary.js',
@@ -22,8 +24,18 @@ const STATIC_ASSETS = [
   '/js/manage.js',
   '/js/voices.js',
   '/js/calendar.js',
+  '/js/lunar.js',
   '/js/loto.js',
-  '/js/particles-calendar.js'
+  '/js/particles-calendar.js',
+  '/js/pwa.js',
+  '/icons/icon-72x72.png',
+  '/icons/icon-96x96.png',
+  '/icons/icon-128x128.png',
+  '/icons/icon-144x144.png',
+  '/icons/icon-152x152.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-384x384.png',
+  '/icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', (event) => {
