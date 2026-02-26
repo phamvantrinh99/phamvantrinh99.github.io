@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="3D Photo Gallery from Google Drive">
-    <title>3D Photo Gallery</title>
+    <meta name="description" content="Dashboard - Your Personal Web Apps Collection">
+    <title>Dashboard - Web Apps</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/manage.css">
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
     <!-- Hamburger Menu -->
@@ -23,7 +23,8 @@
             <button id="close-menu" class="close-menu">&times;</button>
         </div>
         <ul class="nav-links">
-            <li><a href="index.html" class="active">🏠 Gallery</a></li>
+            <li><a href="index.html" class="active">🏠 Dashboard</a></li>
+            <li><a href="gallery.html">🖼️ 3D Gallery</a></li>
             <li><a href="manage.html">⚙️ Manage Images</a></li>
             <li><a href="voices.html">🎤 Voice Synthesis</a></li>
             <li><a href="calendar.html">📅 Calendar</a></li>
@@ -34,115 +35,74 @@
     <!-- Navigation Overlay -->
     <div id="nav-overlay" class="nav-overlay"></div>
 
-    <!-- Overlay -->
-    <div id="nav-overlay" class="nav-overlay"></div>
-
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="loader">
-            <div class="spinner"></div>
-            <p id="loading-text">Đang tải ảnh...</p>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Container -->
-    <div id="container"></div>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>🎯 Dashboard</h1>
+            <p class="subtitle">Your Personal Web Apps Collection</p>
+        </header>
 
-    <!-- UI Controls -->
-    <div id="ui-controls">
-        <button id="toggle-panel" class="toggle-btn">▼</button>
-        <div class="control-panel hidden" id="control-panel">
-            <h1>3D Photo Gallery</h1>
-            
-            <!-- Layout Controls -->
-            <div class="control-section">
-                <label>📐 Layout</label>
-                <select id="layout-select" class="dropdown">
-                    <option value="grid">Grid - Lưới</option>
-                    <option value="circle">Circle - Vòng Tròn</option>
-                    <option value="spiral">Spiral - Xoắn Ốc</option>
-                    <option value="wave">Wave - Sóng</option>
-                    <option value="helix">Helix - DNA</option>
-                    <option value="sphere">Sphere - Hình Cầu</option>
-                    <option value="wall">Wall - Tường</option>
-                </select>
-            </div>
+        <!-- App Tiles Grid -->
+        <div class="tiles-grid">
+            <!-- 3D Gallery Tile -->
+            <a href="gallery.html" class="app-tile" data-color="purple">
+                <div class="tile-icon">🖼️</div>
+                <h2 class="tile-title">3D Gallery</h2>
+                <p class="tile-description">Interactive 3D photo gallery with multiple layouts</p>
+                <div class="tile-footer">
+                    <span class="tile-badge">Interactive</span>
+                </div>
+            </a>
 
-            <!-- Particle Controls -->
-            <div class="control-section">
-                <label>✨ Particles</label>
-                <div class="slider-group">
-                    <span>Count: <span id="particle-count-value">1000</span></span>
-                    <input type="range" id="particle-count" min="100" max="3000" value="1000" step="100">
+            <!-- Manage Images Tile -->
+            <a href="manage.html" class="app-tile" data-color="blue">
+                <div class="tile-icon">⚙️</div>
+                <h2 class="tile-title">Manage Images</h2>
+                <p class="tile-description">Upload, organize and manage your photo collection</p>
+                <div class="tile-footer">
+                    <span class="tile-badge">Cloud Storage</span>
                 </div>
-                <div class="slider-group">
-                    <span>Speed: <span id="particle-speed-value">1.0x</span></span>
-                    <input type="range" id="particle-speed" min="0" max="3" value="1" step="0.1">
-                </div>
-            </div>
+            </a>
 
-            <!-- Rotation Controls -->
-            <div class="control-section">
-                <label>🔄 Rotation</label>
-                <div class="toggle-group">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="auto-rotate-images">
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="toggle-label">Rotate per image</span>
+            <!-- Voice Synthesis Tile -->
+            <a href="voices.html" class="app-tile" data-color="green">
+                <div class="tile-icon">🎤</div>
+                <h2 class="tile-title">Voice Synthesis</h2>
+                <p class="tile-description">Test and explore text-to-speech voices</p>
+                <div class="tile-footer">
+                    <span class="tile-badge">Audio</span>
                 </div>
-                <div class="toggle-group">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="auto-rotate-gallery">
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="toggle-label">Rotate all</span>
-                </div>
-                <div class="slider-group">
-                    <span>Speed: <span id="gallery-rotation-speed-value">0.5x</span></span>
-                    <input type="range" id="gallery-rotation-speed" min="0" max="2" value="0.5" step="0.1">
-                </div>
-            </div>
+            </a>
 
-            <!-- Info -->
-            <div class="info">
-                <p>🖱️ Drag | 🔍 Scroll | 👆 Click</p>
-                <p id="image-count">Đang tải...</p>
-            </div>
+            <!-- Calendar Tile -->
+            <a href="calendar.html" class="app-tile" data-color="orange">
+                <div class="tile-icon">📅</div>
+                <h2 class="tile-title">Vietnamese Calendar</h2>
+                <p class="tile-description">Traditional Vietnamese lunar calendar</p>
+                <div class="tile-footer">
+                    <span class="tile-badge">Utilities</span>
+                </div>
+            </a>
+
+            <!-- Lô Tô Digital Tile -->
+            <a href="loto.html" class="app-tile" data-color="pink">
+                <div class="tile-icon">🎰</div>
+                <h2 class="tile-title">Lô Tô Digital</h2>
+                <p class="tile-description">OCR-powered digital bingo card scanner</p>
+                <div class="tile-footer">
+                    <span class="tile-badge">Game</span>
+                </div>
+            </a>
         </div>
+
+        <!-- Footer Info -->
+        <footer class="dashboard-footer">
+            <p>Built with ❤️ | Total Apps: <strong>5</strong></p>
+        </footer>
     </div>
 
-    <!-- Image Detail Modal -->
-    <div id="image-modal" class="modal">
-        <span class="close">&times;</span>
-        <img class="modal-content" id="modal-image">
-        <div id="modal-caption"></div>
-        <div class="modal-nav">
-            <button id="prev-image" class="nav-btn">❮</button>
-            <button id="next-image" class="nav-btn">❯</button>
-        </div>
-    </div>
-
-    <!-- Error Message -->
-    <div id="error-message" class="error hidden">
-        <p id="error-text"></p>
-        <button id="retry-btn" class="btn">Thử lại</button>
-    </div>
-
-    <!-- Three.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <!-- OrbitControls -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
-    <!-- Application Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/cloudinary.js"></script>
-    <script src="js/gallery3d.js"></script>
+    <!-- Scripts -->
     <script src="js/main.js"></script>
 </body>
 </html>
-
